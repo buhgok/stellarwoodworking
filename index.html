@@ -3,19 +3,490 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stellar Woodworking</title>
-  <meta name="description" content="Stellar Woodworking — handcrafted woodworking made with care and craftsmanship.">
+  <meta name="description" content="Stellar Woodworking — crafting beautiful, lasting things with the gifts we've been given.">
+  <title>Stellar Woodworking | From Our Shop to Your Home</title>
+
+  <style>
+    :root {
+      --black: #11110f;
+      --charcoal: #1b1b18;
+      --cream: #f5f2ea;
+      --paper: #fbfaf7;
+      --gold: #d8b24c;
+      --wood: #8b5e3c;
+      --text: #24231f;
+      --muted: #6d6a61;
+      --max-width: 1200px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background: var(--paper);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(17, 17, 15, 0.97);
+      border-bottom: 1px solid rgba(216, 178, 76, 0.25);
+      backdrop-filter: blur(8px);
+    }
+
+    .nav {
+      width: min(100% - 2rem, var(--max-width));
+      min-height: 76px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      color: var(--gold);
+      font-size: 1.4rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.75rem;
+      align-items: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      color: #eee;
+    }
+
+    .nav-links a {
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    .nav-cta {
+      border: 1px solid var(--gold);
+      padding: 0.65rem 1rem;
+      color: white;
+    }
+
+    .hero {
+      min-height: 78vh;
+      background: var(--black);
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-inner {
+      width: min(100% - 2rem, var(--max-width));
+      margin: 0 auto;
+      padding: 5rem 0;
+      display: grid;
+      grid-template-columns: 1fr 0.9fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.98;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      font-size: clamp(1.15rem, 2vw, 1.45rem);
+      color: #ddd9cf;
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+
+    .button {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.9rem 1.35rem;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      background: #e4c463;
+    }
+
+    .hero-photo-placeholder {
+      min-height: 460px;
+      border: 1px solid rgba(216, 178, 76, 0.45);
+      background:
+        linear-gradient(135deg, rgba(139, 94, 60, 0.3), rgba(0, 0, 0, 0.4)),
+        repeating-linear-gradient(90deg, rgba(139, 94, 60, 0.12) 0 3px, transparent 3px 42px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .photo-note {
+      max-width: 310px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #d7d3c8;
+    }
+
+    .photo-note strong {
+      display: block;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      font-size: 0.8rem;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    section {
+      padding: 6rem 1rem;
+    }
+
+    .section-inner {
+      width: min(100%, var(--max-width));
+      margin: 0 auto;
+    }
+
+    .light-section {
+      background: var(--paper);
+    }
+
+    .section-heading {
+      max-width: 720px;
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .category-card {
+      min-height: 250px;
+      padding: 2rem;
+      border: 1px solid #ddd8cc;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      background: white;
+    }
+
+    .category-card span {
+      color: var(--gold);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .category-card h3 {
+      font-size: 1.7rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .category-card p {
+      color: var(--muted);
+    }
+
+    .dark-section {
+      background: var(--charcoal);
+      color: white;
+    }
+
+    .dark-section .section-heading p {
+      color: #c7c4bb;
+    }
+
+    .work-placeholder {
+      min-height: 300px;
+      border: 1px dashed rgba(216, 178, 76, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      color: #c7c4bb;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .about-section {
+      background: var(--cream);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-note {
+      border-left: 3px solid var(--gold);
+      padding-left: 1.5rem;
+      font-size: 1.25rem;
+      font-style: italic;
+    }
+
+    .project-cta {
+      background: var(--black);
+      color: white;
+      text-align: center;
+    }
+
+    .project-cta .section-inner {
+      max-width: 800px;
+    }
+
+    .project-cta p {
+      color: #d0cdc4;
+      margin: 0 auto 2rem;
+      font-size: 1.15rem;
+    }
+
+    footer {
+      background: #0b0b0a;
+      color: #aaa69d;
+      padding: 2rem 1rem;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .footer-inner {
+      width: min(100%, var(--max-width));
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    @media (max-width: 800px) {
+      .nav {
+        min-height: 68px;
+      }
+
+      .nav-links {
+        gap: 0.8rem;
+        font-size: 0.78rem;
+      }
+
+      .nav-cta {
+        display: none;
+      }
+
+      .hero-inner,
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-photo-placeholder {
+        min-height: 300px;
+      }
+
+      .category-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 4.5rem 1rem;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .brand {
+        font-size: 0.8rem;
+      }
+
+      .nav-links a:nth-child(1) {
+        display: none;
+      }
+
+      h1 {
+        font-size: 3.2rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="Stellar Woodworking home">
+        <span class="brand-mark">★</span>
+        <span>Stellar Woodworking</span>
+      </a>
 
-  <h1>Stellar Woodworking</h1>
+      <div class="nav-links">
+        <a href="#work">Our Work</a>
+        <a href="#about">About</a>
+        <a href="#project" class="nav-cta">Start a Project</a>
+      </div>
+    </nav>
+  </header>
 
-  <p>Our new website is being crafted.</p>
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow">Stellar Woodworking</div>
+          <h1>From Our Shop to Your Home</h1>
+          <p class="hero-copy">Crafting beautiful, lasting things with the gifts we've been given.</p>
+          <a class="button" href="#work">Explore Our Work</a>
+        </div>
 
-  <p>
-    Beautiful things made from raw wood, with care and craftsmanship.
-  </p>
+        <div class="hero-photo-placeholder">
+          <div class="photo-note">
+            <strong>Hero Photo Needed</strong>
+            Wide, horizontal photo of the actual Stellar Woodworking shop or a finished piece being made. Leave some darker, less-busy space for the headline.
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <section class="light-section" id="work">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>What We Make</h2>
+          <p>From everyday pieces to one-of-a-kind projects, we work with the character of the wood and the vision of the customer.</p>
+        </div>
+
+        <div class="category-grid">
+          <article class="category-card">
+            <span>01</span>
+            <h3>Cutting Boards &amp; Kitchenware</h3>
+            <p>Handcrafted pieces made for everyday use, including our board-care products.</p>
+          </article>
+
+          <article class="category-card">
+            <span>02</span>
+            <h3>Furniture</h3>
+            <p>Custom furniture and pieces built to your specifications.</p>
+          </article>
+
+          <article class="category-card">
+            <span>03</span>
+            <h3>Custom Woodwork</h3>
+            <p>Built-ins, specialty projects, and other ideas that deserve a custom solution.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dark-section">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>Our Work</h2>
+          <p>A growing collection of projects from the Stellar Woodworking shop.</p>
+        </div>
+
+        <div class="work-placeholder">
+          <p><strong>Project Photos Needed</strong><br>We'll replace this area with real photographs of finished Stellar Woodworking projects.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section" id="about">
+      <div class="section-inner about-grid">
+        <div>
+          <div class="eyebrow">Our Story</div>
+          <h2>Built by hand. Made to last.</h2>
+          <p>Stellar Woodworking is a family woodworking business focused on creating beautiful, useful things from raw wood.</p>
+        </div>
+
+        <div class="about-note">
+          We use the gifts we've been given to create beautiful things, and we love sharing the work of our hands with others.
+        </div>
+      </div>
+    </section>
+
+    <section class="project-cta" id="project">
+      <div class="section-inner">
+        <div class="eyebrow">Have an idea?</div>
+        <h2>Let's Build Something</h2>
+        <p>Whether you're looking for a cutting board, a piece of furniture, or something completely custom, we'd love to hear about your project.</p>
+        <a class="button" href="mailto:orders@stellarwoodworking.com">Start a Project</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© 2026 Stellar Woodworking</span>
+      <span>Crafting beautiful, lasting things.</span>
+    </div>
+  </footer>
 </body>
 </html>
