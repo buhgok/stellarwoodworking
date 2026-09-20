@@ -8,7 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/scriptina-pro" rel="stylesheet">
 
   <style>
     :root {
@@ -23,15 +23,9 @@
       --max-width: 1200px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: Georgia, "Times New Roman", serif;
@@ -40,10 +34,7 @@
       line-height: 1.6;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    a { color: inherit; text-decoration: none; }
 
     .site-header {
       position: sticky;
@@ -76,10 +67,7 @@
       white-space: nowrap;
     }
 
-    .brand-mark {
-      color: var(--gold);
-      font-size: 1.4rem;
-    }
+    .brand-mark { color: var(--gold); font-size: 1.4rem; }
 
     .nav-links {
       display: flex;
@@ -91,13 +79,8 @@
       color: #eee;
     }
 
-    .nav-links a {
-      transition: color 0.2s ease;
-    }
-
-    .nav-links a:hover {
-      color: var(--gold);
-    }
+    .nav-links a { transition: color 0.2s ease; }
+    .nav-links a:hover { color: var(--gold); }
 
     .nav-cta {
       border: 1px solid var(--gold);
@@ -142,11 +125,11 @@
 
     .hero-title-script {
       display: block;
-      font-family: 'Caveat', cursive;
+      font-family: 'Scriptina Pro', cursive;
       font-size: clamp(4rem, 7vw, 6.4rem);
       line-height: 1.05;
       color: #f1eee5;
-      font-weight: 400;
+      font-weight: 300;
       white-space: nowrap;
     }
 
@@ -169,10 +152,7 @@
       transition: transform 0.2s ease, background 0.2s ease;
     }
 
-    .button:hover {
-      transform: translateY(-2px);
-      background: #e4c463;
-    }
+    .button:hover { transform: translateY(-2px); background: #e4c463; }
 
     .hero-photo-placeholder {
       min-height: 460px;
@@ -187,11 +167,7 @@
       padding: 2rem;
     }
 
-    .photo-note {
-      max-width: 310px;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #d7d3c8;
-    }
+    .photo-note { max-width: 310px; font-family: Arial, Helvetica, sans-serif; color: #d7d3c8; }
 
     .photo-note strong {
       display: block;
@@ -202,23 +178,16 @@
       text-transform: uppercase;
     }
 
-    section {
-      padding: 6rem 1rem;
-    }
+    section { padding: 6rem 1rem; }
 
     .section-inner {
       width: min(100%, var(--max-width));
       margin: 0 auto;
     }
 
-    .light-section {
-      background: var(--paper);
-    }
+    .light-section { background: var(--paper); }
 
-    .section-heading {
-      max-width: 720px;
-      margin-bottom: 3rem;
-    }
+    .section-heading { max-width: 720px; margin-bottom: 3rem; }
 
     h2 {
       font-size: clamp(2.2rem, 5vw, 3.5rem);
@@ -227,10 +196,7 @@
       margin-bottom: 1rem;
     }
 
-    .section-heading p {
-      color: var(--muted);
-      font-size: 1.1rem;
-    }
+    .section-heading p { color: var(--muted); font-size: 1.1rem; }
 
     .category-grid {
       display: grid;
@@ -258,24 +224,11 @@
       margin-bottom: 0.5rem;
     }
 
-    .category-card h3 {
-      font-size: 1.7rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
+    .category-card h3 { font-size: 1.7rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .category-card p { color: var(--muted); }
 
-    .category-card p {
-      color: var(--muted);
-    }
-
-    .dark-section {
-      background: var(--charcoal);
-      color: white;
-    }
-
-    .dark-section .section-heading p {
-      color: #c7c4bb;
-    }
+    .dark-section { background: var(--charcoal); color: white; }
+    .dark-section .section-heading p { color: #c7c4bb; }
 
     .work-placeholder {
       min-height: 300px;
@@ -289,9 +242,7 @@
       font-family: Arial, Helvetica, sans-serif;
     }
 
-    .about-section {
-      background: var(--cream);
-    }
+    .about-section { background: var(--cream); }
 
     .about-grid {
       display: grid;
@@ -307,21 +258,9 @@
       font-style: italic;
     }
 
-    .project-cta {
-      background: var(--black);
-      color: white;
-      text-align: center;
-    }
-
-    .project-cta .section-inner {
-      max-width: 800px;
-    }
-
-    .project-cta p {
-      color: #d0cdc4;
-      margin: 0 auto 2rem;
-      font-size: 1.15rem;
-    }
+    .project-cta { background: var(--black); color: white; text-align: center; }
+    .project-cta .section-inner { max-width: 800px; }
+    .project-cta p { color: #d0cdc4; margin: 0 auto 2rem; font-size: 1.15rem; }
 
     footer {
       background: #0b0b0a;
@@ -340,58 +279,21 @@
     }
 
     @media (max-width: 800px) {
-      .nav {
-        min-height: 68px;
-      }
-
-      .nav-links {
-        gap: 0.8rem;
-        font-size: 0.78rem;
-      }
-
-      .nav-cta {
-        display: none;
-      }
-
-      .hero-inner,
-      .about-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero {
-        min-height: auto;
-      }
-
-      .hero-photo-placeholder {
-        min-height: 300px;
-      }
-
-      .category-grid {
-        grid-template-columns: 1fr;
-      }
-
-      section {
-        padding: 4.5rem 1rem;
-      }
-
-      .footer-inner {
-        flex-direction: column;
-      }
+      .nav { min-height: 68px; }
+      .nav-links { gap: 0.8rem; font-size: 0.78rem; }
+      .nav-cta { display: none; }
+      .hero-inner, .about-grid { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
+      .hero-photo-placeholder { min-height: 300px; }
+      .category-grid { grid-template-columns: 1fr; }
+      section { padding: 4.5rem 1rem; }
+      .footer-inner { flex-direction: column; }
     }
 
     @media (max-width: 520px) {
-      .brand {
-        font-size: 0.8rem;
-      }
-
-      .nav-links a:nth-child(1) {
-        display: none;
-      }
-
-      h1 {
-        font-size: 3.2rem;
-      }
-
+      .brand { font-size: 0.8rem; }
+      .nav-links a:nth-child(1) { display: none; }
+      h1 { font-size: 3.2rem; }
       .hero-title-script {
         font-size: clamp(3.6rem, 15vw, 4.8rem);
         white-space: normal;
@@ -421,9 +323,7 @@
       <div class="hero-inner">
         <div>
           <div class="eyebrow">Stellar Woodworking</div>
-          <h1>
-            <span class="hero-title-script">From Our Shop to Your Home</span>
-          </h1>
+          <h1><span class="hero-title-script">From Our Shop to Your Home</span></h1>
           <p class="hero-copy">Crafting beautiful, lasting things with the gifts we've been given.</p>
           <a class="button" href="#work">Explore Our Work</a>
         </div>
