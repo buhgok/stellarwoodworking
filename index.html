@@ -101,8 +101,8 @@
       margin: 0 auto;
       padding: 5rem 0;
       display: grid;
-      grid-template-columns: 1fr 0.9fr;
-      gap: 4rem;
+      grid-template-columns: minmax(0, 1fr) 420px;
+      gap: 3.5rem;
       align-items: center;
     }
 
@@ -126,10 +126,14 @@
     .hero-title-script {
       display: block;
       font-family: 'Scriptina Pro', cursive;
-      font-size: clamp(4rem, 7vw, 6.4rem);
-      line-height: 1.05;
+      font-size: clamp(4rem, 6vw, 5.7rem);
+      line-height: 0.95;
       color: #f1eee5;
       font-weight: 300;
+    }
+
+    .hero-title-script span {
+      display: block;
       white-space: nowrap;
     }
 
@@ -155,7 +159,8 @@
     .button:hover { transform: translateY(-2px); background: #e4c463; }
 
     .hero-photo-placeholder {
-      min-height: 460px;
+      width: 420px;
+      height: 420px;
       border: 1px solid rgba(216, 178, 76, 0.45);
       background:
         linear-gradient(135deg, rgba(139, 94, 60, 0.3), rgba(0, 0, 0, 0.4)),
@@ -284,7 +289,12 @@
       .nav-cta { display: none; }
       .hero-inner, .about-grid { grid-template-columns: 1fr; }
       .hero { min-height: auto; }
-      .hero-photo-placeholder { min-height: 300px; }
+      .hero-photo-placeholder {
+        width: min(100%, 420px);
+        height: min(100vw - 2rem, 420px);
+        min-height: 0;
+        justify-self: center;
+      }
       .category-grid { grid-template-columns: 1fr; }
       section { padding: 4.5rem 1rem; }
       .footer-inner { flex-direction: column; }
@@ -295,8 +305,10 @@
       .nav-links a:nth-child(1) { display: none; }
       h1 { font-size: 3.2rem; }
       .hero-title-script {
-        font-size: clamp(3.6rem, 15vw, 4.8rem);
-        white-space: normal;
+        font-size: clamp(3.4rem, 15vw, 4.8rem);
+      }
+      .hero-title-script span {
+        white-space: nowrap;
       }
     }
   </style>
@@ -323,7 +335,10 @@
       <div class="hero-inner">
         <div>
           <div class="eyebrow">Stellar Woodworking</div>
-          <h1><span class="hero-title-script">From Our Shop to Your Home</span></h1>
+          <h1 class="hero-title-script">
+            <span>From Our Shop</span>
+            <span>to Your Home</span>
+          </h1>
           <p class="hero-copy">Crafting beautiful, lasting things with the gifts we've been given.</p>
           <a class="button" href="#work">Explore Our Work</a>
         </div>
