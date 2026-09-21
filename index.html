@@ -80,15 +80,23 @@
 
     .nav-links {
       display: flex;
-      gap: 1.75rem;
-      align-items: center;
+      flex-direction: column;
+      gap: 0.9rem;
+      align-items: stretch;
+      width: 100%;
       font-family: Arial, Helvetica, sans-serif;
       font-size: 0.9rem;
       letter-spacing: 0.04em;
       color: #eee;
     }
 
-    .nav-links a { transition: color 0.2s ease; }
+    .nav-links a {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 0.45rem 0.25rem;
+      transition: color 0.2s ease;
+    }
     .nav-links a:hover { color: var(--gold); }
 
     .nav-cta {
@@ -103,16 +111,16 @@
       background: var(--black);
       color: white;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
     }
 
     .hero-inner {
       width: min(100% - 3rem, var(--max-width));
       margin: 0 auto;
-      padding: 5rem 0;
+      padding: 2rem 1rem 5rem;
       display: grid;
       grid-template-columns: minmax(0, 1fr) 450px;
-      gap: 5rem;
+      gap: 4rem;
       align-items: center;
     }
 
@@ -136,7 +144,7 @@
     .hero-title-script {
       display: block;
       font-family: 'Scriptina Pro', cursive;
-      font-size: clamp(4.6rem, 7vw, 7rem);
+      font-size: clamp(4.4rem, 6.2vw, 6.6rem);
       line-height: 0.95;
       color: #f1eee5;
       font-weight: 300;
