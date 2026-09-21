@@ -47,7 +47,7 @@
 
     .nav {
       width: min(100% - 2rem, var(--max-width));
-      min-height: 76px;
+      min-height: 92px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -58,16 +58,16 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
       color: white;
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
       white-space: nowrap;
     }
 
-    .brand-mark { color: var(--gold); font-size: 1.4rem; }
+    .brand-logo {
+      display: block;
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
+    }
 
     .nav-links {
       display: flex;
@@ -284,7 +284,7 @@
     }
 
     @media (max-width: 800px) {
-      .nav { min-height: 68px; }
+      .nav { min-height: 82px; }
       .nav-links { gap: 0.8rem; font-size: 0.78rem; }
       .nav-cta { display: none; }
       .hero-inner, .about-grid { grid-template-columns: 1fr; }
@@ -301,7 +301,7 @@
     }
 
     @media (max-width: 520px) {
-      .brand { font-size: 0.8rem; }
+       .brand-logo { width: 68px; height: 68px; }
       .nav-links a:nth-child(1) { display: none; }
       h1 { font-size: 3.2rem; }
       .hero-title-script {
@@ -318,8 +318,7 @@
   <header class="site-header">
     <nav class="nav" aria-label="Main navigation">
       <a class="brand" href="#home" aria-label="Stellar Woodworking home">
-        <span class="brand-mark">★</span>
-        <span>Stellar Woodworking</span>
+        <img class="brand-logo" src="assets/stellar-logo.webp" alt="Stellar Woodworking">
       </a>
 
       <div class="nav-links">
