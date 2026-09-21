@@ -46,20 +46,23 @@
     }
 
      .nav {
-      width: min(100% - 3rem, var(--max-width));
-      min-height: 105px;
-      margin: 0 auto;
+      width: 100%;
+      min-height: 100vh;
+      padding: 2rem 1rem 3rem;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      gap: 2rem;
+      justify-content: flex-start;
+      gap: 2.25rem;
     }
 
     .brand {
       display: flex;
       align-items: center;
+      justify-content: center;
       color: white;
       white-space: nowrap;
+      width: 100%;
     }
 
     .brand-logo {
@@ -68,7 +71,7 @@
       height: 190px;
       object-fit: contain;
       border-radius: 50%;
-      margin-top: 48px;
+      margin-top: 0;
       position: relative;
       z-index: 2;
     }
