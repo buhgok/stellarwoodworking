@@ -7,27 +7,30 @@
   <title>Stellar Woodworking | Coming Soon</title>
   <link href="https://fonts.cdnfonts.com/css/scriptina-pro" rel="stylesheet">
   <style>
-    :root{--black:#11110f;--charcoal:#1b1b18;--cream:#f5f2ea;--gold:#d8b24c;--text:#24231f}
+    :root{--black:#11110f;--cream:#f5f2ea;--gold:#d8b24c}
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{min-height:100%}
     body{font-family:Georgia,"Times New Roman",serif;background:var(--black);color:#fff}
-    .page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
-    .content{width:min(100%,1000px);text-align:center}
-    .mark{width:112px;height:112px;margin:0 auto 2rem;border:1px solid rgba(216,178,76,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;padding:1rem}
-    .mark span{font-family:Arial,Helvetica,sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.18em;color:var(--gold)}
-    .eyebrow{font-family:Arial,Helvetica,sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1.25rem}
-    h1{font-family:'Scriptina Pro',cursive;font-weight:300;font-size:clamp(4.2rem,10vw,8rem);line-height:.9;color:#f1eee5}
-    .tagline{margin:1.75rem auto 0;max-width:700px;font-size:clamp(1.05rem,2vw,1.35rem);line-height:1.6;color:#d7d3c8;font-style:italic}
+    .page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2.5rem 2rem}
+    .content{width:min(100%,1100px);text-align:center}
+    .logo{display:block;width:150px;height:150px;object-fit:contain;margin:0 auto 2.75rem}
+    h1{font-family:'Scriptina Pro',cursive;font-weight:300;font-size:clamp(4.2rem,10vw,8rem);line-height:.9;color:var(--cream)}
+    .tagline{margin:2.35rem auto 0;max-width:760px;font-size:clamp(1.05rem,2vw,1.35rem);line-height:1.6;color:#d7d3c8;font-style:italic}
     .rule{width:80px;height:1px;background:var(--gold);margin:2rem auto}
     .message{font-family:Arial,Helvetica,sans-serif;color:#aaa69d;font-size:.9rem;letter-spacing:.04em}
-    @media(max-width:560px){.page{padding:1.5rem}.mark{width:88px;height:88px;margin-bottom:1.5rem}h1{font-size:clamp(3.5rem,18vw,5.5rem)}.tagline{font-size:1rem}.message{font-size:.82rem}}
+    @media(max-width:560px){
+      .page{padding:1.75rem 1.25rem}
+      .logo{width:105px;height:105px;margin-bottom:2.25rem}
+      h1{font-size:clamp(3.5rem,18vw,5.5rem)}
+      .tagline{font-size:1rem;margin-top:1.8rem}
+      .message{font-size:.82rem}
+    }
   </style>
 </head>
 <body>
   <main class="page">
     <div class="content">
-      <div class="mark" aria-label="Stellar Woodworking"><span>STELLAR<br>WOODWORKING</span></div>
-      <div class="eyebrow">Stellar Woodworking</div>
+      <img class="logo" src="assets/stellar-logo.png" alt="Stellar Woodworking logo">
       <h1>From Our Shop<br>to Your Home</h1>
       <p class="tagline">Crafting beautiful, lasting things with the gifts we've been given.</p>
       <div class="rule"></div>
