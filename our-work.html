@@ -1,5 +1,28 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Our Work | Stellar Woodworking</title><link href="https://fonts.cdnfonts.com/css/scriptina-pro" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head><body>
-<header class="site-header"><nav class="nav"><a class="brand" href="index.html"><img class="brand-logo" src="assets/stellar-logo.png" alt="Stellar Woodworking"></a><div class="nav-links"><a href="index.html">Home</a><a class="active" href="our-work.html">Our Work</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="start-a-project.html" class="nav-cta">Start a Project</a></div></nav></header><main>
+<header class="site-header"><nav class="nav"><a class="brand" href="index.html"><img class="brand-logo" src="assets/stellar-logo.png" alt="Stellar Woodworking"></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open navigation"><span></span><span></span><span></span></button><div class="nav-links" id="site-menu"><a href="index.html">Home</a><a class="active" href="our-work.html">Our Work</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="start-a-project.html" class="nav-cta">Start a Project</a></div></nav></header><main>
 <section class="page-hero"><div class="page-hero-inner"><div class="eyebrow">Our Work</div><h1>Made by hand.<br>Built to last.</h1><p>A portfolio of cutting boards, furniture, custom projects, and other work from the Stellar Woodworking shop.</p></div></section>
 <section class="light-section"><div class="section-inner"><div class="section-heading"><h2>Featured Projects</h2><p>We'll build this collection around real Stellar projects as we photograph and document them.</p></div><div class="portfolio-grid"><article class="portfolio-card"><div class="portfolio-image">Project photo placeholder</div><div class="portfolio-card-content"><h3>Cutting Boards & Kitchenware</h3><p>Real project photography and details will go here.</p></div></article><article class="portfolio-card"><div class="portfolio-image">Project photo placeholder</div><div class="portfolio-card-content"><h3>Furniture</h3><p>Real project photography and details will go here.</p></div></article><article class="portfolio-card"><div class="portfolio-image">Project photo placeholder</div><div class="portfolio-card-content"><h3>Custom Woodwork</h3><p>Real project photography and details will go here.</p></div></article><article class="portfolio-card"><div class="portfolio-image">Project photo placeholder</div><div class="portfolio-card-content"><h3>Built-Ins</h3><p>Real project photography and details will go here.</p></div></article><article class="portfolio-card"><div class="portfolio-image">Project photo placeholder</div><div class="portfolio-card-content"><h3>Specialty Projects</h3><p>Real project photography and details will go here.</p></div></article><article class="portfolio-card"><div class="portfolio-image">Project photo placeholder</div><div class="portfolio-card-content"><h3>More to Come</h3><p>Real project photography and details will go here.</p></div></article></div></div></section>
-<section class="project-cta"><div class="section-inner"><div class="eyebrow">Have an idea?</div><h2>Let's Build Something</h2><p>Tell us what you're thinking and we'll start the conversation.</p><a class="button" href="start-a-project.html">Start a Project</a></div></section></main><footer><div class="footer-inner"><span>© 2026 Stellar Woodworking</span><span>Crafting beautiful, lasting things.</span></div></footer></body></html>
+<section class="project-cta"><div class="section-inner"><div class="eyebrow">Have an idea?</div><h2>Let's Build Something</h2><p>Tell us what you're thinking and we'll start the conversation.</p><a class="button" href="start-a-project.html">Start a Project</a></div></section></main><footer><div class="footer-inner"><span>© 2026 Stellar Woodworking</span><span>Crafting beautiful, lasting things.</span></div></footer><script>
+    const menuToggle=document.querySelector('.menu-toggle');
+    const navLinks=document.querySelector('.nav-links');
+    if(menuToggle&&navLinks){
+      menuToggle.addEventListener('click',()=>{
+        const open=menuToggle.getAttribute('aria-expanded')==='true';
+        menuToggle.setAttribute('aria-expanded',String(!open));
+        menuToggle.setAttribute('aria-label',open?'Open navigation':'Close navigation');
+        navLinks.classList.toggle('is-open',!open);
+      });
+      navLinks.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{
+        menuToggle.setAttribute('aria-expanded','false');
+        menuToggle.setAttribute('aria-label','Open navigation');
+        navLinks.classList.remove('is-open');
+      }));
+      document.addEventListener('keydown',e=>{
+        if(e.key==='Escape'){
+          menuToggle.setAttribute('aria-expanded','false');
+          menuToggle.setAttribute('aria-label','Open navigation');
+          navLinks.classList.remove('is-open');
+        }
+      });
+    }
+  </script></body></html>
