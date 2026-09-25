@@ -1,6 +1,29 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>About | Stellar Woodworking</title><link href="https://fonts.cdnfonts.com/css/scriptina-pro" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head><body>
-<header class="site-header"><nav class="nav"><a class="brand" href="index.html"><img class="brand-logo" src="assets/stellar-logo.png" alt="Stellar Woodworking"></a><div class="nav-links"><a href="index.html">Home</a><a href="our-work.html">Our Work</a><a href="shop.html">Shop</a><a class="active" href="about.html">About</a><a href="start-a-project.html" class="nav-cta">Start a Project</a></div></nav></header><main>
+<header class="site-header"><nav class="nav"><a class="brand" href="index.html"><img class="brand-logo" src="assets/stellar-logo.png" alt="Stellar Woodworking"></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open navigation"><span></span><span></span><span></span></button><div class="nav-links" id="site-menu"><a href="index.html">Home</a><a href="our-work.html">Our Work</a><a href="shop.html">Shop</a><a class="active" href="about.html">About</a><a href="start-a-project.html" class="nav-cta">Start a Project</a></div></nav></header><main>
 <section class="page-hero"><div class="page-hero-inner"><div class="eyebrow">About Stellar</div><h1>More than<br>woodworking.</h1><p>Stellar Woodworking is about turning raw materials, craftsmanship, and the gifts we've been given into beautiful, lasting things for the home.</p></div></section>
 <section class="cream-section"><div class="section-inner about-grid"><div><div class="eyebrow">Our Story</div><h2>Built by people who love making things.</h2><p>Stellar Woodworking grew from a love of working with wood and creating things that are useful, beautiful, and made to last. As the shop grows, so will the kinds of projects we take on.</p><br><p>We'll use this space to tell the fuller story of the people behind Stellar, why we build, and what matters to us.</p></div><div class="about-note">From our shop to your home — crafting beautiful, lasting things with the gifts we've been given.</div></div></section>
 <section class="light-section"><div class="section-inner"><div class="section-heading"><div class="eyebrow">Our Approach</div><h2>Quality over shortcuts.</h2><p>We'll use this section to talk about materials, craftsmanship, attention to detail, and the process behind the finished piece.</p></div></div></section>
-<section class="project-cta"><div class="section-inner"><div class="eyebrow">Work with us</div><h2>Have an idea?</h2><p>We'd love to hear what you're thinking.</p><a class="button" href="start-a-project.html">Start a Project</a></div></section></main><footer><div class="footer-inner"><span>© 2026 Stellar Woodworking</span><span>Crafting beautiful, lasting things.</span></div></footer></body></html>
+<section class="project-cta"><div class="section-inner"><div class="eyebrow">Work with us</div><h2>Have an idea?</h2><p>We'd love to hear what you're thinking.</p><a class="button" href="start-a-project.html">Start a Project</a></div></section></main><footer><div class="footer-inner"><span>© 2026 Stellar Woodworking</span><span>Crafting beautiful, lasting things.</span></div></footer><script>
+    const menuToggle=document.querySelector('.menu-toggle');
+    const navLinks=document.querySelector('.nav-links');
+    if(menuToggle&&navLinks){
+      menuToggle.addEventListener('click',()=>{
+        const open=menuToggle.getAttribute('aria-expanded')==='true';
+        menuToggle.setAttribute('aria-expanded',String(!open));
+        menuToggle.setAttribute('aria-label',open?'Open navigation':'Close navigation');
+        navLinks.classList.toggle('is-open',!open);
+      });
+      navLinks.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{
+        menuToggle.setAttribute('aria-expanded','false');
+        menuToggle.setAttribute('aria-label','Open navigation');
+        navLinks.classList.remove('is-open');
+      }));
+      document.addEventListener('keydown',e=>{
+        if(e.key==='Escape'){
+          menuToggle.setAttribute('aria-expanded','false');
+          menuToggle.setAttribute('aria-label','Open navigation');
+          navLinks.classList.remove('is-open');
+        }
+      });
+    }
+  </script></body></html>
