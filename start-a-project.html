@@ -1,4 +1,27 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Start a Project | Stellar Woodworking</title><link href="https://fonts.cdnfonts.com/css/scriptina-pro" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head><body>
-<header class="site-header"><nav class="nav"><a class="brand" href="index.html"><img class="brand-logo" src="assets/stellar-logo.png" alt="Stellar Woodworking"></a><div class="nav-links"><a href="index.html">Home</a><a href="our-work.html">Our Work</a><a href="shop.html">Shop</a><a href="about.html">About</a><a class="active nav-cta" href="start-a-project.html">Start a Project</a></div></nav></header><main>
+<header class="site-header"><nav class="nav"><a class="brand" href="index.html"><img class="brand-logo" src="assets/stellar-logo.png" alt="Stellar Woodworking"></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open navigation"><span></span><span></span><span></span></button><div class="nav-links" id="site-menu"><a href="index.html">Home</a><a href="our-work.html">Our Work</a><a href="shop.html">Shop</a><a href="about.html">About</a><a class="active nav-cta" href="start-a-project.html">Start a Project</a></div></nav></header><main>
 <section class="page-hero"><div class="page-hero-inner"><div class="eyebrow">Start a Project</div><h1>Have an idea?<br>Let's build it.</h1><p>Tell us what you're thinking. Whether it's a piece of furniture, a built-in, a cutting board, or something completely custom, we'd love to hear about it.</p></div></section>
-<section class="light-section"><div class="section-inner"><div class="form-wrap"><div class="form-note">This is the starting point for the future project inquiry form. For now, submitting isn't connected to a backend.</div><div class="form-grid"><div class="field"><label for="name">Name</label><input id="name" type="text" placeholder="Your name"></div><div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@example.com"></div><div class="field"><label for="type">Project Type</label><select id="type"><option>Choose one</option><option>Cutting Board / Kitchenware</option><option>Furniture</option><option>Built-In</option><option>Custom Woodwork</option><option>Something Else</option></select></div><div class="field"><label for="budget">Approximate Budget (optional)</label><input id="budget" type="text" placeholder="Optional"></div><div class="field full"><label for="details">Tell us about your project</label><textarea id="details" placeholder="What are you thinking about? Dimensions, wood preferences, inspiration, timing, or anything else that would help us understand your idea."></textarea></div></div><p style="margin-top:1.5rem;color:var(--muted)">We'll connect this form to the Stellar Woodworking email/inquiry workflow once we're ready.</p><a class="button" style="margin-top:1rem" href="mailto:contact@stellarwoodworking.com">Email Us Instead</a></div></div></section></main><footer><div class="footer-inner"><span>© 2026 Stellar Woodworking</span><span>Crafting beautiful, lasting things.</span></div></footer></body></html>
+<section class="light-section"><div class="section-inner"><div class="form-wrap"><div class="form-note">This is the starting point for the future project inquiry form. For now, submitting isn't connected to a backend.</div><div class="form-grid"><div class="field"><label for="name">Name</label><input id="name" type="text" placeholder="Your name"></div><div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="you@example.com"></div><div class="field"><label for="type">Project Type</label><select id="type"><option>Choose one</option><option>Cutting Board / Kitchenware</option><option>Furniture</option><option>Built-In</option><option>Custom Woodwork</option><option>Something Else</option></select></div><div class="field"><label for="budget">Approximate Budget (optional)</label><input id="budget" type="text" placeholder="Optional"></div><div class="field full"><label for="details">Tell us about your project</label><textarea id="details" placeholder="What are you thinking about? Dimensions, wood preferences, inspiration, timing, or anything else that would help us understand your idea."></textarea></div></div><p style="margin-top:1.5rem;color:var(--muted)">We'll connect this form to the Stellar Woodworking email/inquiry workflow once we're ready.</p><a class="button" style="margin-top:1rem" href="mailto:contact@stellarwoodworking.com">Email Us Instead</a></div></div></section></main><footer><div class="footer-inner"><span>© 2026 Stellar Woodworking</span><span>Crafting beautiful, lasting things.</span></div></footer><script>
+    const menuToggle=document.querySelector('.menu-toggle');
+    const navLinks=document.querySelector('.nav-links');
+    if(menuToggle&&navLinks){
+      menuToggle.addEventListener('click',()=>{
+        const open=menuToggle.getAttribute('aria-expanded')==='true';
+        menuToggle.setAttribute('aria-expanded',String(!open));
+        menuToggle.setAttribute('aria-label',open?'Open navigation':'Close navigation');
+        navLinks.classList.toggle('is-open',!open);
+      });
+      navLinks.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{
+        menuToggle.setAttribute('aria-expanded','false');
+        menuToggle.setAttribute('aria-label','Open navigation');
+        navLinks.classList.remove('is-open');
+      }));
+      document.addEventListener('keydown',e=>{
+        if(e.key==='Escape'){
+          menuToggle.setAttribute('aria-expanded','false');
+          menuToggle.setAttribute('aria-label','Open navigation');
+          navLinks.classList.remove('is-open');
+        }
+      });
+    }
+  </script></body></html>
