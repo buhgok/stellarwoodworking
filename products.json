@@ -10,32 +10,13 @@
   },
   "products": [
     {
-      "id": "sample-walnut-end-grain-board",
-      "name": "Walnut End-Grain Cutting Board",
-      "description": "Sample listing. Replace with a real piece, photo, and price.",
-      "price": 145,
-      "quantity": 1,
-      "image": "",
-      "shippable": true,
-      "active": true
-    },
-    {
-      "id": "sample-maple-serving-board",
-      "name": "Maple Serving Board",
-      "description": "Sample listing. Replace with a real piece, photo, and price.",
-      "price": 65,
-      "quantity": 4,
-      "image": "",
-      "shippable": true,
-      "active": true
-    },
-    {
-      "id": "sample-board-butter",
-      "name": "Board Butter",
-      "description": "Sample listing. Replace with real details and price.",
-      "price": 12,
-      "quantity": 20,
-      "image": "",
+      "id": "sol-maple-walnut",
+      "name": "Sol | Charcuterie Board/Light Cutting Board",
+      "description": "Inspired by the star at the center of our solar system, Sol is where it all began. The design comes from the very first board we made for our own family, built to be shared and made to bring people together. Every board is cut from maple and walnut, so each one has its own grain and character.",
+      "details": "Approx. 18½\" × 12½\" × ¾\" · Food-safe mineral oil & beeswax finish",
+      "price": 90,
+      "quantity": 6,
+      "images": ["assets/shop/sol-1.webp", "assets/shop/sol-2.webp"],
       "shippable": true,
       "active": true
     }

@@ -4,7 +4,8 @@ Website for Stellar Woodworking
 ## Shop
 
 Products live in `products.json`. Each product has an `id` (never change it once sold), `name`,
-`description`, `price` (USD), `quantity` (starting stock; 1 = one-of-a-kind), `image` (e.g. `assets/shop/board.jpg`),
+`description`, `details` (small specs line), `price` (USD), `quantity` (starting stock; 1 = one-of-a-kind),
+`images` (list of photos in `assets/shop/`, first one shown first),
 `shippable` (false = local pickup only) and `active` (false hides it). Shipping and pickup settings are at the top.
 
 Checkout runs through Cloudflare Pages Functions in `functions/api/` and PayPal. Cloudflare Pages settings:

@@ -4,7 +4,7 @@
   const cartSection = document.getElementById('cart');
   const cartWrap = document.getElementById('cart-wrap');
   const cartPill = document.getElementById('cart-pill');
-  const state = { catalog: null, cart: loadCart(), delivery: 'ship', paypalReady: false, lastError: '' };
+  const state = { catalog: null, cart: loadCart(), delivery: 'ship', paypalReady: false, lastError: '', photo: {} };
 
   function loadCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
@@ -52,16 +52,40 @@
       const stock = soldOut ? 'Sold' : p.unique ? 'One of a kind' : `${p.available} in stock`;
       const button = soldOut ? 'Sold' : full ? (p.unique ? 'In Your Cart' : 'All in Your Cart') : 'Add to Cart';
       return `<article class="shop-card${soldOut ? ' is-sold' : ''}">
-        ${p.image ? `<img class="shop-image" src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">` : '<div class="shop-image">Product photo placeholder</div>'}
+        ${gallery(p)}
         <div class="shop-card-content">
           <h3>${esc(p.name)}</h3>
           <p>${esc(p.description)}</p>
+          ${p.details ? `<p class="shop-details">${esc(p.details)}</p>` : ''}
           <div class="shop-meta"><span class="stock">${stock}</span>${p.shippable ? '' : '<span class="stock">Local pickup only</span>'}</div>
           <span class="price">${money(p.price)}</span>
           <button class="button add-to-cart" type="button" data-id="${esc(p.id)}"${soldOut || full ? ' disabled' : ''}>${button}</button>
         </div>
       </article>`;
     }).join('');
+  }
+
+  function gallery(p) {
+    const images = p.images || [];
+    if (!images.length) return '<div class="shop-image">Product photo placeholder</div>';
+    const index = (state.photo[p.id] || 0) % images.length;
+    const slides = images.map((src, i) => `<img class="shop-image${i === index ? ' is-active' : ''}" src="${esc(src)}" alt="${esc(p.name)}, photo ${i + 1} of ${images.length}"${i ? ' loading="lazy"' : ''}>`).join('');
+    if (images.length === 1) return `<div class="shop-gallery">${slides}</div>`;
+    return `<div class="shop-gallery" data-gallery="${esc(p.id)}">${slides}
+      <button class="gallery-arrow prev" type="button" data-step="-1" aria-label="Previous photo">&#8249;</button>
+      <button class="gallery-arrow next" type="button" data-step="1" aria-label="Next photo">&#8250;</button>
+      <div class="gallery-dots">${images.map((_, i) => `<span${i === index ? ' class="is-active"' : ''}></span>`).join('')}</div>
+    </div>`;
+  }
+
+  // Changes photos in place so the rest of the card doesn't re-render.
+  function showPhoto(el, step) {
+    const id = el.dataset.gallery;
+    const slides = el.querySelectorAll('.shop-image');
+    const index = ((state.photo[id] || 0) + step + slides.length) % slides.length;
+    state.photo[id] = index;
+    slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
+    el.querySelectorAll('.gallery-dots span').forEach((d, i) => d.classList.toggle('is-active', i === index));
   }
 
   function totals() {
@@ -192,7 +216,21 @@
     render();
   }
 
+  let touchX = null;
+  grid.addEventListener('touchstart', e => {
+    touchX = e.target.closest('[data-gallery]') ? e.touches[0].clientX : null;
+  }, { passive: true });
+  grid.addEventListener('touchend', e => {
+    const el = e.target.closest('[data-gallery]');
+    if (!el || touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 40) showPhoto(el, dx < 0 ? 1 : -1);
+    touchX = null;
+  });
+
   grid.addEventListener('click', e => {
+    const arrow = e.target.closest('.gallery-arrow');
+    if (arrow) return showPhoto(arrow.closest('[data-gallery]'), Number(arrow.dataset.step));
     const btn = e.target.closest('.add-to-cart');
     if (!btn) return;
     setQty(btn.dataset.id, inCart(btn.dataset.id) + 1);
