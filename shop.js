@@ -95,8 +95,19 @@
     if (!pickup.enabled) state.delivery = 'ship';
     const subtotal = state.cart.reduce((sum, l) => sum + product(l.id).price * l.qty, 0);
     const free = shipping.freeOver != null && subtotal >= shipping.freeOver;
-    const ship = state.delivery === 'ship' && !free ? Number(shipping.flatRate || 0) : 0;
-    return { subtotal, ship, free, total: subtotal + ship, allShippable };
+    const rate = shippingCost();
+    const ship = state.delivery === 'ship' && !free ? rate : 0;
+    return { subtotal, rate, ship, free, total: subtotal + ship, allShippable };
+  }
+
+  // Mirrors the server: costliest item at full rate, each other unit at its "additional" rate.
+  function shippingCost() {
+    const cents = v => Math.round(Number(v || 0) * 100);
+    const lines = state.cart.map(l => ({ qty: l.qty, ...product(l.id).shipping }));
+    if (!lines.length) return 0;
+    const top = lines.reduce((a, b) => cents(b.first) > cents(a.first) ? b : a);
+    const extras = lines.reduce((sum, l) => sum + cents(l.additional) * l.qty, 0);
+    return (cents(top.first) + extras - cents(top.additional)) / 100;
   }
 
   function renderCart() {
@@ -108,9 +119,11 @@
 
     const { shipping = {}, pickup = {} } = state.catalog;
     const t = totals();
-    const shipLabel = shipping.freeOver != null
-      ? `${money(shipping.flatRate)}, free on orders over ${money(shipping.freeOver)}`
-      : money(shipping.flatRate);
+    const shipLabel = t.free
+      ? `Free shipping on orders over ${money(shipping.freeOver)}`
+      : shipping.freeOver != null
+        ? `${money(t.rate)}, free on orders over ${money(shipping.freeOver)}`
+        : money(t.rate);
 
     cartWrap.innerHTML = `
       <h2>Your Cart</h2>

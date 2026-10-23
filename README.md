@@ -6,7 +6,7 @@ Website for Stellar Woodworking
 Products live in `products.json`. Each product has an `id` (never change it once sold), `name`,
 `description`, `details` (small specs line), `price` (USD), `quantity` (starting stock; 1 = one-of-a-kind),
 `images` (list of photos in `assets/shop/`, first one shown first),
-`shippable` (false = local pickup only) and `active` (false hides it). Shipping and pickup settings are at the top.
+`shippingCost` / `shippingAdditional` (default shipping; admin page overrides), `shippable` (false = local pickup only) and `active` (false hides it). Shipping and pickup settings are at the top.
 
 Checkout runs through Cloudflare Pages Functions in `functions/api/` and PayPal. Cloudflare Pages settings:
 
@@ -18,3 +18,5 @@ Checkout runs through Cloudflare Pages Functions in `functions/api/` and PayPal.
 
 `/admin` (username `admin`, password = `ADMIN_PASSWORD`) shows stock and orders. Stock you set there
 overrides `quantity` in `products.json`; sales count it down automatically. Orders can be marked shipped / picked up.
+Shipping per product is also set there: the costliest item ships at its full Shipping rate and every other
+item adds its Each additional rate. `shipping.freeOver` in `products.json` makes larger orders ship free.

@@ -38,6 +38,25 @@ export async function available(env, product) {
   return Math.max(0, Number(product.quantity || 0) - (await soldCount(env, product.id)));
 }
 
+// Shipping set from the admin page (ship:<id>) wins; otherwise products.json
+// shippingCost / shippingAdditional, falling back to the store-wide flat rate.
+export async function shippingFor(env, product) {
+  const saved = env.INVENTORY ? await env.INVENTORY.get(`ship:${product.id}`, "json") : null;
+  if (saved) return saved;
+  return {
+    first: Number(product.shippingCost ?? catalog.shipping?.flatRate ?? 0),
+    additional: Number(product.shippingAdditional ?? 0),
+  };
+}
+
+// The costliest item ships at its full rate; every other unit adds its "each additional" rate.
+export function shippingTotalCents(lines) {
+  if (!lines.length) return 0;
+  const top = lines.reduce((a, b) => (toCents(b.shipping.first) > toCents(a.shipping.first) ? b : a));
+  const extras = lines.reduce((sum, l) => sum + toCents(l.shipping.additional) * l.qty, 0);
+  return toCents(top.shipping.first) + extras - toCents(top.shipping.additional);
+}
+
 export async function recordSale(env, id, qty) {
   const product = findProduct(id);
   const left = product ? await available(env, product) : 0;
@@ -64,13 +83,13 @@ export async function priceCart(env, items, delivery) {
     if (qty > left) {
       return { error: left ? `Only ${left} of ${product.name} left.` : `${product.name} has sold out.` };
     }
-    lines.push({ product, qty, unitCents: toCents(product.price) });
+    lines.push({ product, qty, unitCents: toCents(product.price), shipping: await shippingFor(env, product) });
   }
 
   const itemCents = lines.reduce((sum, l) => sum + l.unitCents * l.qty, 0);
-  const { flatRate = 0, freeOver } = catalog.shipping || {};
+  const { freeOver } = catalog.shipping || {};
   const freeShipping = freeOver != null && itemCents >= toCents(freeOver);
-  const shippingCents = delivery === "ship" && !freeShipping ? toCents(flatRate) : 0;
+  const shippingCents = delivery === "ship" && !freeShipping ? shippingTotalCents(lines) : 0;
   return { lines, itemCents, shippingCents, totalCents: itemCents + shippingCents };
 }
 

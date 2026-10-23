@@ -10,8 +10,10 @@
   .admin th,.admin td{text-align:left;padding:.8rem 1rem;border-bottom:1px solid #eee9de;vertical-align:top}
   .admin th{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--paper)}
   .admin td small{display:block;color:var(--muted);margin-top:.2rem}
-  .stock-edit{display:flex;gap:.5rem;align-items:center}
-  .stock-edit input{width:5rem;font:inherit;border:1px solid #cfc9bd;padding:.45rem .5rem;background:var(--paper)}
+  .admin td input{width:5.5rem;font:inherit;border:1px solid #cfc9bd;padding:.45rem .5rem;background:var(--paper)}
+  .money-input{display:inline-flex;align-items:center;gap:.25rem}
+  .save-cell{white-space:nowrap}
+  .save-cell .saved{display:block;margin-top:.35rem}
   .admin button{font:inherit;font-weight:700;border:0;background:var(--gold);color:var(--black);padding:.45rem .8rem;cursor:pointer}
   .admin button:disabled{background:#e5e1d7;color:var(--muted);cursor:default}
   .saved{color:#2f6b3a;font-size:.85rem}
@@ -37,9 +39,11 @@
 
   <h2>Inventory</h2>
   <table>
-    <thead><tr><th>Product</th><th>Price</th><th>In stock</th><th>Sold</th></tr></thead>
-    <tbody id="inventory"><tr><td colspan="4">Loading&hellip;</td></tr></tbody>
+    <thead><tr><th>Product</th><th>Price</th><th>In stock</th><th>Shipping</th><th>Each additional</th><th>Sold</th><th></th></tr></thead>
+    <tbody id="inventory"><tr><td colspan="7">Loading&hellip;</td></tr></tbody>
   </table>
+
+  <p class="admin-note"><strong>How shipping adds up:</strong> the item with the highest Shipping cost is charged in full, and every other item in the order adds its Each additional cost.<span id="free-over"></span></p>
 
   <h2>Orders</h2>
   <table class="orders">
@@ -65,14 +69,18 @@
     try {
       const data = await api('/api/admin/inventory');
       if (!data.tracking) document.getElementById('notice').innerHTML = '<p class="admin-note">Stock tracking isn\'t connected. Add the INVENTORY KV binding in Cloudflare to save stock changes and orders.</p>';
+      if (data.freeOver != null) document.getElementById('free-over').textContent = ` Orders over ${money(data.freeOver)} ship free.`;
       inventory.innerHTML = data.products.map(p => `<tr>
         <td data-label="Product"><strong>${esc(p.name)}</strong>${p.unique ? '<span class="tag">One of a kind</span>' : ''}${p.active ? '' : '<span class="tag">Hidden</span>'}<small>${esc(p.id)}</small></td>
         <td data-label="Price">${money(p.price)}</td>
-        <td data-label="In stock"><form class="stock-edit" data-id="${esc(p.id)}"><input type="number" min="0" step="1" value="${p.available}" aria-label="In stock for ${esc(p.name)}"><button type="submit">Save</button><span class="saved" role="status"></span></form></td>
+        <td data-label="In stock"><input form="f-${esc(p.id)}" name="available" type="number" min="0" step="1" value="${p.available}" aria-label="In stock for ${esc(p.name)}"></td>
+        <td data-label="Shipping"><span class="money-input">$<input form="f-${esc(p.id)}" name="first" type="number" min="0" step="0.01" value="${p.shipping.first}" aria-label="Shipping for ${esc(p.name)}"></span>${p.shippable ? '' : '<small>Pickup only</small>'}</td>
+        <td data-label="Each additional"><span class="money-input">$<input form="f-${esc(p.id)}" name="additional" type="number" min="0" step="0.01" value="${p.shipping.additional}" aria-label="Each additional for ${esc(p.name)}"></span></td>
         <td data-label="Sold">${p.sold}</td>
+        <td class="save-cell"><form id="f-${esc(p.id)}" data-id="${esc(p.id)}"><button type="submit">Save</button><span class="saved" role="status"></span></form></td>
       </tr>`).join('');
     } catch (err) {
-      inventory.innerHTML = `<tr><td colspan="4" class="error">${esc(err.message)}</td></tr>`;
+      inventory.innerHTML = `<tr><td colspan="7" class="error">${esc(err.message)}</td></tr>`;
     }
   }
 
@@ -109,7 +117,12 @@
     button.disabled = true;
     status.className = 'saved';
     try {
-      await api('/api/admin/inventory', { id: form.dataset.id, available: Number(form.querySelector('input').value) });
+      const field = name => form.elements[name].value;
+      await api('/api/admin/inventory', {
+        id: form.dataset.id,
+        available: Number(field('available')),
+        shipping: { first: field('first'), additional: field('additional') },
+      });
       status.textContent = 'Saved';
     } catch (err) {
       status.className = 'saved error';

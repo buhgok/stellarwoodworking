@@ -1,5 +1,5 @@
 // GET /api/products: the catalog with live availability, plus checkout settings.
-import { catalog, available, json } from "../_shared/shop.js";
+import { catalog, available, json, shippingFor } from "../_shared/shop.js";
 
 export async function onRequestGet({ env }) {
   const products = await Promise.all(
@@ -13,6 +13,7 @@ export async function onRequestGet({ env }) {
         price: p.price,
         images: p.images || (p.image ? [p.image] : []),
         shippable: p.shippable !== false,
+        shipping: await shippingFor(env, p),
         unique: Number(p.quantity) === 1,
         available: await available(env, p),
       }))
