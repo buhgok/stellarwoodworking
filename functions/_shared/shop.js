@@ -7,7 +7,7 @@
 // Bindings (Pages > Settings > Bindings):
 //   INVENTORY             KV namespace used to track sold quantities
 
-import catalog from "../../products.json" with { type: "json" };
+import catalog from "../../products.json";
 
 export { catalog };
 
