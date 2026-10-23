@@ -125,7 +125,7 @@
     if (window.paypal) return Promise.resolve();
     return new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(state.catalog.paypalClientId)}&currency=${state.catalog.currency}&intent=capture&components=buttons`;
+      s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(state.catalog.paypalClientId)}&currency=${state.catalog.currency}&intent=capture&components=buttons&disable-funding=paylater`;
       s.onload = resolve;
       s.onerror = reject;
       document.head.appendChild(s);
