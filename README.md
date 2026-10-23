@@ -19,4 +19,4 @@ Checkout runs through Cloudflare Pages Functions in `functions/api/` and PayPal.
 `/admin` (username `admin`, password = `ADMIN_PASSWORD`) shows prices, stock, shipping and orders. Price and stock set there
 override `price` and `quantity` in `products.json`; sales count it down automatically. Orders can be marked shipped / picked up.
 Shipping per product is also set there: the costliest item ships at its full Shipping rate and every other
-item adds its Each additional rate. `shipping.freeOver` in `products.json` makes larger orders ship free.
+item adds its Each additional rate. `shipping.freeOver` in `products.json` (a dollar amount, or `null` for off) makes larger orders ship free.

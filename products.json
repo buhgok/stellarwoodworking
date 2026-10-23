@@ -2,7 +2,7 @@
   "currency": "USD",
   "shipping": {
     "flatRate": 15,
-    "freeOver": 150
+    "freeOver": null
   },
   "pickup": {
     "enabled": true,
