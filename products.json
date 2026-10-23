@@ -1,0 +1,43 @@
+{
+  "currency": "USD",
+  "shipping": {
+    "flatRate": 15,
+    "freeOver": 150
+  },
+  "pickup": {
+    "enabled": true,
+    "note": "Free local pickup. We'll email you after your order to arrange a time."
+  },
+  "products": [
+    {
+      "id": "sample-walnut-end-grain-board",
+      "name": "Walnut End-Grain Cutting Board",
+      "description": "Sample listing. Replace with a real piece, photo, and price.",
+      "price": 145,
+      "quantity": 1,
+      "image": "",
+      "shippable": true,
+      "active": true
+    },
+    {
+      "id": "sample-maple-serving-board",
+      "name": "Maple Serving Board",
+      "description": "Sample listing. Replace with a real piece, photo, and price.",
+      "price": 65,
+      "quantity": 4,
+      "image": "",
+      "shippable": true,
+      "active": true
+    },
+    {
+      "id": "sample-board-butter",
+      "name": "Board Butter",
+      "description": "Sample listing. Replace with real details and price.",
+      "price": 12,
+      "quantity": 20,
+      "image": "",
+      "shippable": true,
+      "active": true
+    }
+  ]
+}
