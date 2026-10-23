@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="robots" content="noindex, nofollow"><title>Shop Admin | Stellar Woodworking</title><link rel="stylesheet" href="/styles.css">
+<style>
+  .admin{max-width:1100px;margin:0 auto;padding:7rem 1.5rem 5rem}
+  @media(max-width:900px){.admin{padding-top:3rem}}
+  .admin h1{font-size:clamp(2.2rem,5vw,3.25rem);margin-bottom:.5rem}
+  .admin h2{font-size:1.9rem;margin:3rem 0 1rem}
+  .admin .lede{color:var(--muted);margin-bottom:1rem}
+  .admin-note{font-family:Arial,Helvetica,sans-serif;font-size:.9rem;background:#fff8e6;border:1px solid #ecd9a4;padding:.85rem 1rem;margin:1rem 0}
+  .admin table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #ddd8cc;font-family:Arial,Helvetica,sans-serif;font-size:.95rem}
+  .admin th,.admin td{text-align:left;padding:.8rem 1rem;border-bottom:1px solid #eee9de;vertical-align:top}
+  .admin th{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--paper)}
+  .admin td small{display:block;color:var(--muted);margin-top:.2rem}
+  .stock-edit{display:flex;gap:.5rem;align-items:center}
+  .stock-edit input{width:5rem;font:inherit;border:1px solid #cfc9bd;padding:.45rem .5rem;background:var(--paper)}
+  .admin button{font:inherit;font-weight:700;border:0;background:var(--gold);color:var(--black);padding:.45rem .8rem;cursor:pointer}
+  .admin button:disabled{background:#e5e1d7;color:var(--muted);cursor:default}
+  .saved{color:#2f6b3a;font-size:.85rem}
+  .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid #e6dcc0;padding:.15rem .4rem;margin-left:.35rem}
+  .orders tr.done td{color:var(--muted)}
+  .orders label{display:flex;gap:.4rem;align-items:center;white-space:nowrap;cursor:pointer}
+  .orders ul{list-style:none}
+  .admin .error{color:#9b2c1f}
+  @media(max-width:760px){
+    .admin table,.admin thead,.admin tbody,.admin tr,.admin th,.admin td{display:block}
+    .admin thead{display:none}
+    .admin tr{border-bottom:1px solid #ddd8cc;padding:.5rem 0}
+    .admin td{border:0;padding:.35rem 1rem}
+    .admin td[data-label]::before{content:attr(data-label);display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  }
+</style></head><body>
+<header class="site-header"><nav class="nav"><a class="brand" href="/index.html"><img class="brand-logo" src="/assets/stellar-logo.png" alt="Stellar Woodworking"></a><div class="nav-links"><a href="/shop.html">View Shop</a></div></nav></header>
+<main class="admin">
+  <div class="eyebrow">Admin</div>
+  <h1>Shop Admin</h1>
+  <p class="lede">Set how many of each product are in stock and keep track of orders.</p>
+  <div id="notice"></div>
+
+  <h2>Inventory</h2>
+  <table>
+    <thead><tr><th>Product</th><th>Price</th><th>In stock</th><th>Sold</th></tr></thead>
+    <tbody id="inventory"><tr><td colspan="4">Loading&hellip;</td></tr></tbody>
+  </table>
+
+  <h2>Orders</h2>
+  <table class="orders">
+    <thead><tr><th>Date</th><th>Customer</th><th>Items</th><th>Delivery</th><th>Done</th></tr></thead>
+    <tbody id="orders"><tr><td colspan="5">Loading&hellip;</td></tr></tbody>
+  </table>
+</main>
+<script>
+(() => {
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const money = n => n == null ? '' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+  const inventory = document.getElementById('inventory');
+  const orders = document.getElementById('orders');
+
+  async function api(path, body) {
+    const res = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    return data;
+  }
+
+  async function loadInventory() {
+    try {
+      const data = await api('/api/admin/inventory');
+      if (!data.tracking) document.getElementById('notice').innerHTML = '<p class="admin-note">Stock tracking isn\'t connected. Add the INVENTORY KV binding in Cloudflare to save stock changes and orders.</p>';
+      inventory.innerHTML = data.products.map(p => `<tr>
+        <td data-label="Product"><strong>${esc(p.name)}</strong>${p.unique ? '<span class="tag">One of a kind</span>' : ''}${p.active ? '' : '<span class="tag">Hidden</span>'}<small>${esc(p.id)}</small></td>
+        <td data-label="Price">${money(p.price)}</td>
+        <td data-label="In stock"><form class="stock-edit" data-id="${esc(p.id)}"><input type="number" min="0" step="1" value="${p.available}" aria-label="In stock for ${esc(p.name)}"><button type="submit">Save</button><span class="saved" role="status"></span></form></td>
+        <td data-label="Sold">${p.sold}</td>
+      </tr>`).join('');
+    } catch (err) {
+      inventory.innerHTML = `<tr><td colspan="4" class="error">${esc(err.message)}</td></tr>`;
+    }
+  }
+
+  function address(a) {
+    if (!a) return '';
+    return [a.address_line_1, a.address_line_2, [a.admin_area_2, a.admin_area_1, a.postal_code].filter(Boolean).join(', '), a.country_code !== 'US' ? a.country_code : ''].filter(Boolean).map(esc).join('<br>');
+  }
+
+  async function loadOrders() {
+    try {
+      const data = await api('/api/admin/orders');
+      if (!data.orders.length) { orders.innerHTML = '<tr><td colspan="5">No orders yet.</td></tr>'; return; }
+      orders.innerHTML = data.orders.map(o => {
+        const pickup = o.delivery === 'pickup';
+        const items = (o.items || []).map(i => `<li>${esc(i.qty ?? i.quantity)} &times; ${esc(i.name)}</li>`).join('');
+        return `<tr class="${o.fulfilled ? 'done' : ''}">
+          <td data-label="Date">${o.at ? new Date(o.at).toLocaleString() : ''}<small>${esc(o.id)}</small></td>
+          <td data-label="Customer">${esc(o.name || '(name not recorded)')}${o.email ? `<small><a href="mailto:${esc(o.email)}">${esc(o.email)}</a></small>` : ''}</td>
+          <td data-label="Items"><ul>${items}</ul>${o.total ? `<small>Total ${money(o.total)}</small>` : ''}</td>
+          <td data-label="Delivery">${pickup ? 'Local pickup' : `Ship to:<small>${esc(o.shipTo?.name)}<br>${address(o.shipTo?.address)}</small>`}</td>
+          <td data-label="Done"><label><input type="checkbox" data-order="${esc(o.id)}"${o.fulfilled ? ' checked' : ''}> ${pickup ? 'Picked up' : 'Shipped'}</label></td>
+        </tr>`;
+      }).join('');
+    } catch (err) {
+      orders.innerHTML = `<tr><td colspan="5" class="error">${esc(err.message)}</td></tr>`;
+    }
+  }
+
+  inventory.addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target;
+    const status = form.querySelector('.saved');
+    const button = form.querySelector('button');
+    button.disabled = true;
+    status.className = 'saved';
+    try {
+      await api('/api/admin/inventory', { id: form.dataset.id, available: Number(form.querySelector('input').value) });
+      status.textContent = 'Saved';
+    } catch (err) {
+      status.className = 'saved error';
+      status.textContent = err.message;
+    }
+    button.disabled = false;
+  });
+
+  orders.addEventListener('change', async e => {
+    const box = e.target.closest('[data-order]');
+    if (!box) return;
+    try {
+      await api('/api/admin/orders', { id: box.dataset.order, fulfilled: box.checked });
+      box.closest('tr').classList.toggle('done', box.checked);
+    } catch (err) {
+      box.checked = !box.checked;
+      alert(err.message);
+    }
+  });
+
+  loadInventory();
+  loadOrders();
+})();
+</script>
+</body></html>

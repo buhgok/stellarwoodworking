@@ -30,8 +30,19 @@ export async function soldCount(env, id) {
   return Number((await env.INVENTORY.get(`sold:${id}`)) || 0);
 }
 
+// Stock set from the admin page (stock:<id>) wins; otherwise it's the
+// products.json quantity minus everything sold so far.
 export async function available(env, product) {
+  const stock = env.INVENTORY ? await env.INVENTORY.get(`stock:${product.id}`) : null;
+  if (stock !== null) return Math.max(0, Number(stock));
   return Math.max(0, Number(product.quantity || 0) - (await soldCount(env, product.id)));
+}
+
+export async function recordSale(env, id, qty) {
+  const product = findProduct(id);
+  const left = product ? await available(env, product) : 0;
+  await env.INVENTORY.put(`stock:${id}`, String(Math.max(0, left - qty)));
+  await env.INVENTORY.put(`sold:${id}`, String((await soldCount(env, id)) + qty));
 }
 
 // Validates cart lines against the catalog and stock. Returns { lines } or { error }.

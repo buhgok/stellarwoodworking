@@ -1,5 +1,5 @@
 // POST /api/orders/:id/capture: re-checks stock, captures payment, then records the sale.
-import { available, findProduct, json, paypalFetch, soldCount } from "../../../_shared/shop.js";
+import { available, findProduct, json, paypalFetch, recordSale } from "../../../_shared/shop.js";
 
 export async function onRequestPost({ params, env }) {
   const id = String(params.id || "");
@@ -26,11 +26,23 @@ export async function onRequestPost({ params, env }) {
     }
 
     if (env.INVENTORY && !(await env.INVENTORY.get(`order:${id}`))) {
-      await env.INVENTORY.put(`order:${id}`, JSON.stringify({ at: new Date().toISOString(), items }));
-      for (const item of items) {
-        const sold = (await soldCount(env, item.sku)) + Number(item.quantity);
-        await env.INVENTORY.put(`sold:${item.sku}`, String(sold));
-      }
+      const unit = order.data.purchase_units[0];
+      const shipping = capture.data.purchase_units?.[0]?.shipping;
+      const payer = capture.data.payer || {};
+      const record = {
+        at: new Date().toISOString(),
+        name: [payer.name?.given_name, payer.name?.surname].filter(Boolean).join(" "),
+        email: payer.email_address || "",
+        delivery: unit.custom_id || "ship",
+        total: unit.amount?.value,
+        items: items.map((i) => ({ id: i.sku, name: i.name, qty: Number(i.quantity), price: i.unit_amount?.value })),
+        shipTo: shipping?.address ? { name: shipping.name?.full_name || "", address: shipping.address } : null,
+        fulfilled: false,
+      };
+      await env.INVENTORY.put(`order:${id}`, JSON.stringify(record), {
+        metadata: { at: record.at, fulfilled: false },
+      });
+      for (const item of record.items) await recordSale(env, item.id, item.qty);
     }
 
     return json({
