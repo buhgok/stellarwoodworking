@@ -38,6 +38,12 @@ export async function available(env, product) {
   return Math.max(0, Number(product.quantity || 0) - (await soldCount(env, product.id)));
 }
 
+// Price set from the admin page (price:<id>) wins over products.json.
+export async function priceFor(env, product) {
+  const saved = env.INVENTORY ? await env.INVENTORY.get(`price:${product.id}`) : null;
+  return saved !== null ? Number(saved) : Number(product.price);
+}
+
 // Shipping set from the admin page (ship:<id>) wins; otherwise products.json
 // shippingCost / shippingAdditional, falling back to the store-wide flat rate.
 export async function shippingFor(env, product) {
@@ -83,7 +89,7 @@ export async function priceCart(env, items, delivery) {
     if (qty > left) {
       return { error: left ? `Only ${left} of ${product.name} left.` : `${product.name} has sold out.` };
     }
-    lines.push({ product, qty, unitCents: toCents(product.price), shipping: await shippingFor(env, product) });
+    lines.push({ product, qty, unitCents: toCents(await priceFor(env, product)), shipping: await shippingFor(env, product) });
   }
 
   const itemCents = lines.reduce((sum, l) => sum + l.unitCents * l.qty, 0);

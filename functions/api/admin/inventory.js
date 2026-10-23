@@ -1,13 +1,13 @@
 // GET  /api/admin/inventory: every product (including hidden ones) with stock and sales.
-// POST /api/admin/inventory: { id, available?, shipping?: { first, additional } } updates stock and/or shipping.
-import { available, catalog, json, shippingFor, soldCount } from "../../_shared/shop.js";
+// POST /api/admin/inventory: { id, price?, available?, shipping?: { first, additional } } updates any of them.
+import { available, catalog, json, priceFor, shippingFor, soldCount } from "../../_shared/shop.js";
 
 export async function onRequestGet({ env }) {
   const products = await Promise.all(
     catalog.products.map(async (p) => ({
       id: p.id,
       name: p.name,
-      price: p.price,
+      price: await priceFor(env, p),
       active: p.active !== false,
       unique: Number(p.quantity) === 1,
       available: await available(env, p),
@@ -30,17 +30,21 @@ export async function onRequestPost({ request, env }) {
     const { first, additional } = body.shipping || {};
     if (!money(first) || !money(additional)) return json({ error: "Shipping must be a dollar amount, 0 or more." }, 400);
   }
+  if (body.price !== undefined && !(money(body.price) && Number(body.price) >= 0.01)) {
+    return json({ error: "Price must be a dollar amount above 0." }, 400);
+  }
   if (body.available !== undefined && (!Number.isInteger(Number(body.available)) || Number(body.available) < 0)) {
     return json({ error: "Stock must be a whole number, 0 or more." }, 400);
   }
 
+  const round = (v) => Math.round(Number(v) * 100) / 100;
+  if (body.price !== undefined) await env.INVENTORY.put(`price:${product.id}`, String(round(body.price)));
   if (body.available !== undefined) await env.INVENTORY.put(`stock:${product.id}`, String(Number(body.available)));
   if (body.shipping !== undefined) {
-    const round = (v) => Math.round(Number(v) * 100) / 100;
     await env.INVENTORY.put(
       `ship:${product.id}`,
       JSON.stringify({ first: round(body.shipping.first), additional: round(body.shipping.additional) })
     );
   }
-  return json({ id: product.id, available: await available(env, product), shipping: await shippingFor(env, product) });
+  return json({ id: product.id, price: await priceFor(env, product), available: await available(env, product), shipping: await shippingFor(env, product) });
 }
