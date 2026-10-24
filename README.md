@@ -28,7 +28,7 @@ Paid orders appear in WOOD's Orders and Fulfillment screens.
 |---|---|
 | `WOOD_URL` | WOOD's Supabase Project URL |
 | `WOOD_PUBLISHABLE_KEY` | WOOD's Supabase publishable (anon) key |
-| `WOOD_WEBSITE_KEY` | The restricted website credential from WOOD (secret) |
+| `WOOD_WEBSITE_KEY` | The website key from WOOD (secret): run `select public.website_rotate_key();` in WOOD's Supabase SQL Editor |
 | `PAYPAL_CLIENT_ID` | PayPal REST app client ID |
 | `PAYPAL_CLIENT_SECRET` | PayPal REST app secret (secret) |
 | `PAYPAL_ENV` | `live` for production only; anything else uses the PayPal sandbox |

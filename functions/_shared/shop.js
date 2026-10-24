@@ -7,7 +7,7 @@
 // Environment (Pages > Settings > Variables and Secrets):
 //   WOOD_URL              WOOD Supabase project URL, e.g. https://abc.supabase.co
 //   WOOD_PUBLISHABLE_KEY  WOOD Supabase publishable (anon) key
-//   WOOD_WEBSITE_KEY      Restricted website credential (store as a secret)
+//   WOOD_WEBSITE_KEY      Website key from WOOD's website_rotate_key() (store as a secret)
 //   PAYPAL_CLIENT_ID      PayPal REST app client ID
 //   PAYPAL_CLIENT_SECRET  PayPal REST app secret (store as a secret)
 //   PAYPAL_ENV            "live" for real payments; anything else uses sandbox
@@ -23,9 +23,9 @@ export function json(data, status = 200) {
   });
 }
 
-// Calls a WOOD website_* operation. Returns WOOD's JSON response, which has
-// ok: true or ok: false with a shopper-facing message. Throws when WOOD
-// can't be reached or the call itself fails.
+// Calls a WOOD website_* operation with the website key. Returns WOOD's JSON
+// response, which has ok: true or ok: false with a shopper-facing message.
+// Throws when WOOD can't be reached, rejects the key, or the call fails.
 export async function wood(env, operation, args = {}) {
   if (!env.WOOD_URL || !env.WOOD_PUBLISHABLE_KEY || !env.WOOD_WEBSITE_KEY) {
     throw new Error("WOOD connection is not configured.");
@@ -34,11 +34,10 @@ export async function wood(env, operation, args = {}) {
     method: "POST",
     headers: {
       apikey: env.WOOD_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${env.WOOD_WEBSITE_KEY}`,
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: JSON.stringify(args),
+    body: JSON.stringify({ p_key: env.WOOD_WEBSITE_KEY, ...args }),
     signal: AbortSignal.timeout(10000),
   });
   const text = await res.text();
