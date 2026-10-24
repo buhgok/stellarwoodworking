@@ -1,7 +1,7 @@
 // GET /api/products: the catalog with live availability, plus checkout settings.
 // Each WOOD listing (a product at one price) is one shop product; its id is
 // the WOOD listing_id.
-import { json, photoUrl, wood } from "../_shared/shop.js";
+import { failureReason, json, photoUrl, wood } from "../_shared/shop.js";
 
 export async function onRequestGet({ env }) {
   try {
@@ -30,6 +30,6 @@ export async function onRequestGet({ env }) {
     });
   } catch (err) {
     console.error(err);
-    return json({ error: "The shop couldn't load right now." }, 503);
+    return json({ error: "The shop couldn't load right now.", reason: failureReason(err) }, 503);
   }
 }

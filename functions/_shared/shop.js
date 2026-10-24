@@ -25,25 +25,48 @@ export function json(data, status = 200) {
 
 // Calls a WOOD website_* operation with the website key. Returns WOOD's JSON
 // response, which has ok: true or ok: false with a shopper-facing message.
-// Throws when WOOD can't be reached, rejects the key, or the call fails.
+// Throws a WoodError when WOOD can't be reached, rejects the key, or the call
+// fails; its reason is a short code that is safe to show publicly.
+export class WoodError extends Error {
+  constructor(reason, detail) {
+    super(`WOOD ${reason}: ${detail}`);
+    this.reason = reason;
+  }
+}
+
 export async function wood(env, operation, args = {}) {
   if (!env.WOOD_URL || !env.WOOD_PUBLISHABLE_KEY || !env.WOOD_WEBSITE_KEY) {
-    throw new Error("WOOD connection is not configured.");
+    throw new WoodError("not_configured", "WOOD_URL, WOOD_PUBLISHABLE_KEY, or WOOD_WEBSITE_KEY is missing");
   }
-  const res = await fetch(`${env.WOOD_URL.replace(/\/+$/, "")}/rest/v1/rpc/${operation}`, {
-    method: "POST",
-    headers: {
-      apikey: env.WOOD_PUBLISHABLE_KEY,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({ p_key: env.WOOD_WEBSITE_KEY, ...args }),
-    signal: AbortSignal.timeout(10000),
-  });
+  let res;
+  try {
+    res = await fetch(`${env.WOOD_URL.replace(/\/+$/, "")}/rest/v1/rpc/${operation}`, {
+      method: "POST",
+      headers: {
+        apikey: env.WOOD_PUBLISHABLE_KEY,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ p_key: env.WOOD_WEBSITE_KEY, ...args }),
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch (err) {
+    throw new WoodError("unreachable", `${operation}: ${err.message}`);
+  }
   const text = await res.text();
-  if (!res.ok) throw new Error(`WOOD ${operation} failed (${res.status}): ${text.slice(0, 500)}`);
+  if (!res.ok) {
+    const reason =
+      res.status === 401 && /api key|apikey/i.test(text) ? "publishable_key_rejected"
+      : res.status === 401 || res.status === 403 ? "website_key_rejected"
+      : res.status === 404 ? "operation_missing"
+      : "error";
+    throw new WoodError(reason, `${operation} (${res.status}): ${text.slice(0, 500)}`);
+  }
   return JSON.parse(text);
 }
+
+// Short failure code for API responses; never includes secrets.
+export const failureReason = (err) => (err instanceof WoodError ? `wood_${err.reason}` : "unexpected");
 
 // Product photos in WOOD are bucket paths, site paths ("/assets/..."), or full URLs.
 export function photoUrl(env, path) {

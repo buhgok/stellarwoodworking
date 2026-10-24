@@ -1,7 +1,7 @@
 // POST /api/orders: holds the pieces in WOOD, then builds a PayPal order from
 // WOOD's prices and totals.
 // Body: { items: [{ id, qty }], delivery: "ship" | "pickup" }
-import { json, paypalFetch, wood } from "../_shared/shop.js";
+import { failureReason, json, paypalFetch, wood } from "../_shared/shop.js";
 
 export async function onRequestPost({ request, env }) {
   const body = await request.json().catch(() => null);
@@ -14,7 +14,7 @@ export async function onRequestPost({ request, env }) {
     hold = await wood(env, "website_hold_items", { p_items: items, p_delivery: body?.delivery ?? null });
   } catch (err) {
     console.error(err);
-    return json({ error: "Checkout isn't available right now." }, 503);
+    return json({ error: "Checkout isn't available right now.", reason: failureReason(err) }, 503);
   }
   if (!hold.ok) return json({ error: hold.message, code: hold.code }, 409);
 
