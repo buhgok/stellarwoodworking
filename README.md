@@ -3,20 +3,38 @@ Website for Stellar Woodworking
 
 ## Shop
 
-Products live in `products.json`. Each product has an `id` (never change it once sold), `name`,
-`description`, `details` (small specs line), `price` (USD), `quantity` (starting stock; 1 = one-of-a-kind),
-`images` (list of photos in `assets/shop/`, first one shown first),
-`shippingCost` / `shippingAdditional` (default shipping; admin page overrides), `shippable` (false = local pickup only) and `active` (false hides it). Shipping and pickup settings are at the top.
+The shop runs on WOOD, Stellar Woodworking's internal system. Products, photos, prices, stock, shipping rates,
+pickup settings, and orders are all managed in WOOD; this site only displays them and takes payment.
+The agreement between the two systems is `docs/website-contract.md` in the WOOD repository.
 
-Checkout runs through Cloudflare Pages Functions in `functions/api/` and PayPal. Cloudflare Pages settings:
+Each physical board in WOOD has its own price. The shop lists a product once per price, with the number of
+boards available at that price. A product marked one-of-a-kind in WOOD shows as "One of a kind".
 
-- **Variables and Secrets**: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` (secret), `ADMIN_PASSWORD` (secret),
-  and `PAYPAL_ENV=live` for production only. Without `PAYPAL_ENV=live`, the PayPal sandbox is used.
-- **Bindings**: a KV namespace bound as `INVENTORY`. It stores stock levels and orders; without it, stock isn't tracked.
+Checkout runs through Cloudflare Pages Functions in `functions/api/` and PayPal:
 
-## Admin
+1. `GET /api/products` reads the catalog from WOOD.
+2. `POST /api/orders` asks WOOD to hold the boards for 20 minutes and price the cart, then creates the PayPal order
+   from WOOD's totals.
+3. `POST /api/orders/:id/capture` confirms the hold, captures the payment, and records the paid order in WOOD.
+4. `POST /api/orders/:id/cancel` releases the boards when the shopper cancels PayPal.
 
-`/admin` (username `admin`, password = `ADMIN_PASSWORD`) shows prices, stock, shipping and orders. Price and stock set there
-override `price` and `quantity` in `products.json`; sales count it down automatically. Orders can be marked shipped / picked up.
-Shipping per product is also set there: the costliest item ships at its full Shipping rate and every other
-item adds its Each additional rate. `shipping.freeOver` in `products.json` (a dollar amount, or `null` for off) makes larger orders ship free.
+Paid orders appear in WOOD's Orders and Fulfillment screens.
+
+### Cloudflare Pages settings
+
+**Variables and Secrets:**
+
+| Name | Value |
+|---|---|
+| `WOOD_URL` | WOOD's Supabase Project URL |
+| `WOOD_PUBLISHABLE_KEY` | WOOD's Supabase publishable (anon) key |
+| `WOOD_WEBSITE_KEY` | The restricted website credential from WOOD (secret) |
+| `PAYPAL_CLIENT_ID` | PayPal REST app client ID |
+| `PAYPAL_CLIENT_SECRET` | PayPal REST app secret (secret) |
+| `PAYPAL_ENV` | `live` for production only; anything else uses the PayPal sandbox |
+
+Never put WOOD's Supabase secret / `service_role` key here.
+
+**Bindings (optional):** a KV namespace bound as `INVENTORY`. It is used only if a payment succeeds but WOOD can't
+be reached to record it after three tries: the order is saved under `unrecorded:<PayPal capture ID>` so it can be
+entered into WOOD by hand. Check the Functions logs for "UNRECORDED PAID ORDER".

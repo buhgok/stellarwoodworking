@@ -194,6 +194,10 @@
         if (!res.ok) { state.lastError = result.error; throw new Error(result.error); }
         complete(result);
       },
+      onCancel: data => {
+        // Free the pieces held for this checkout right away.
+        fetch(`/api/orders/${encodeURIComponent(data.orderID)}/cancel`, { method: 'POST' }).catch(() => {});
+      },
       onError: () => {
         message(state.lastError || 'Something went wrong with checkout. You have not been charged.');
         state.lastError = '';
@@ -213,7 +217,7 @@
         <div class="eyebrow">Order Confirmed</div>
         <h2>Thank you${result.name ? `, ${esc(result.name)}` : ''}!</h2>
         <p>Your order is in. A receipt from PayPal is on its way${result.email ? ` to ${esc(result.email)}` : ''}. ${pickup ? 'We\'ll email you soon to arrange pickup.' : 'We\'ll let you know when your order ships.'}</p>
-        <p class="form-note">Order number: ${esc(result.id)}</p>
+        <p class="form-note">Order number: ${esc(result.orderNumber || result.id)}</p>
       </div>`;
       cartSection.scrollIntoView({ behavior: 'smooth' });
     });
