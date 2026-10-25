@@ -1,6 +1,6 @@
 // POST /api/orders/:id/capture: confirms the WOOD hold, captures payment with
 // PayPal, then records the paid order in WOOD.
-import { holdIdFrom, isPayPalOrderId, json, paypalFetch, wood } from "../../../_shared/shop.js";
+import { SHIPPING_AREA_MESSAGE, holdIdFrom, isPayPalOrderId, json, paypalFetch, shipsTo, wood } from "../../../_shared/shop.js";
 
 export async function onRequestPost({ params, env }) {
   const id = String(params.id || "");
@@ -16,6 +16,14 @@ export async function onRequestPost({ params, env }) {
     let captured = order.data.status === "COMPLETED" ? order.data : null;
 
     if (!captured) {
+      // Only charge for addresses we ship to; free the pieces otherwise so the
+      // shopper can start again with another address or pickup.
+      const shipTo = order.data.purchase_units?.[0]?.shipping?.address;
+      if (shipTo && !shipsTo(shipTo)) {
+        await wood(env, "website_release_hold", { p_hold_id: holdId }).catch((err) => console.error(err));
+        return json({ error: SHIPPING_AREA_MESSAGE, shippingArea: true }, 422);
+      }
+
       // Make sure the pieces are still ours before taking payment.
       const confirm = await wood(env, "website_confirm_hold", { p_hold_id: holdId });
       if (!confirm.ok) return json({ error: confirm.message }, 409);

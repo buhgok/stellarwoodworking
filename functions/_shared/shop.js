@@ -112,3 +112,15 @@ export function holdIdFrom(paypalOrder) {
 }
 
 export const isPayPalOrderId = (id) => /^[A-Z0-9]{5,40}$/.test(id);
+
+// We ship to the contiguous United States only: the 48 states and DC. No
+// Alaska, Hawaii, US territories, military (AA/AE/AP) or international
+// addresses. shop.js keeps the same list for the PayPal window.
+const SHIP_STATES = new Set(("AL AZ AR CA CO CT DE DC FL GA ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY " +
+  "NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY").split(" "));
+export const SHIPPING_AREA_MESSAGE =
+  "Sorry, we only ship within the contiguous United States (no Alaska, Hawaii, US territories, military or international addresses). You have not been charged. Choose another address, or local pickup if you're nearby.";
+
+export function shipsTo(address) {
+  return address?.country_code === "US" && SHIP_STATES.has(String(address.admin_area_1 || "").trim().toUpperCase());
+}
