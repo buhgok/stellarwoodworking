@@ -1,15 +1,20 @@
 // Shared helpers for the shop API (Cloudflare Pages Functions).
 //
+// The shop's products, stock, prices, holds, and orders live in WOOD.
+// These functions call WOOD's website_* operations (see WOOD's
+// docs/website-contract.md) and talk to PayPal.
+//
 // Environment (Pages > Settings > Variables and Secrets):
+//   WOOD_URL              WOOD Supabase project URL, e.g. https://abc.supabase.co
+//   WOOD_PUBLISHABLE_KEY  WOOD Supabase publishable (anon) key
+//   WOOD_WEBSITE_KEY      Website key from WOOD's website_rotate_key() (store as a secret)
 //   PAYPAL_CLIENT_ID      PayPal REST app client ID
 //   PAYPAL_CLIENT_SECRET  PayPal REST app secret (store as a secret)
 //   PAYPAL_ENV            "live" for real payments; anything else uses sandbox
-// Bindings (Pages > Settings > Bindings):
-//   INVENTORY             KV namespace used to track sold quantities
-
-import catalog from "../../products.json";
-
-export { catalog };
+//   PAYPAL_API_BASE       Testing only: overrides the PayPal API address
+// Bindings (optional):
+//   INVENTORY             KV namespace; only used to park a paid order that
+//                         could not be recorded in WOOD (unrecorded:<capture>)
 
 export function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -18,88 +23,62 @@ export function json(data, status = 200) {
   });
 }
 
-export const toCents = (dollars) => Math.round(Number(dollars) * 100);
-export const toValue = (cents) => (cents / 100).toFixed(2);
-
-export function findProduct(id) {
-  return catalog.products.find((p) => p.id === id && p.active !== false);
-}
-
-export async function soldCount(env, id) {
-  if (!env.INVENTORY) return 0;
-  return Number((await env.INVENTORY.get(`sold:${id}`)) || 0);
-}
-
-// Stock set from the admin page (stock:<id>) wins; otherwise it's the
-// products.json quantity minus everything sold so far.
-export async function available(env, product) {
-  const stock = env.INVENTORY ? await env.INVENTORY.get(`stock:${product.id}`) : null;
-  if (stock !== null) return Math.max(0, Number(stock));
-  return Math.max(0, Number(product.quantity || 0) - (await soldCount(env, product.id)));
-}
-
-// Price set from the admin page (price:<id>) wins over products.json.
-export async function priceFor(env, product) {
-  const saved = env.INVENTORY ? await env.INVENTORY.get(`price:${product.id}`) : null;
-  return saved !== null ? Number(saved) : Number(product.price);
-}
-
-// Shipping set from the admin page (ship:<id>) wins; otherwise products.json
-// shippingCost / shippingAdditional, falling back to the store-wide flat rate.
-export async function shippingFor(env, product) {
-  const saved = env.INVENTORY ? await env.INVENTORY.get(`ship:${product.id}`, "json") : null;
-  if (saved) return saved;
-  return {
-    first: Number(product.shippingCost ?? catalog.shipping?.flatRate ?? 0),
-    additional: Number(product.shippingAdditional ?? 0),
-  };
-}
-
-// The costliest item ships at its full rate; every other unit adds its "each additional" rate.
-export function shippingTotalCents(lines) {
-  if (!lines.length) return 0;
-  const top = lines.reduce((a, b) => (toCents(b.shipping.first) > toCents(a.shipping.first) ? b : a));
-  const extras = lines.reduce((sum, l) => sum + toCents(l.shipping.additional) * l.qty, 0);
-  return toCents(top.shipping.first) + extras - toCents(top.shipping.additional);
-}
-
-export async function recordSale(env, id, qty) {
-  const product = findProduct(id);
-  const left = product ? await available(env, product) : 0;
-  await env.INVENTORY.put(`stock:${id}`, String(Math.max(0, left - qty)));
-  await env.INVENTORY.put(`sold:${id}`, String((await soldCount(env, id)) + qty));
-}
-
-// Validates cart lines against the catalog and stock. Returns { lines } or { error }.
-export async function priceCart(env, items, delivery) {
-  if (!Array.isArray(items) || items.length === 0) return { error: "Your cart is empty." };
-  if (delivery !== "ship" && delivery !== "pickup") return { error: "Choose shipping or pickup." };
-  if (delivery === "pickup" && !catalog.pickup?.enabled) return { error: "Local pickup isn't available." };
-
-  const lines = [];
-  for (const item of items) {
-    const product = findProduct(item?.id);
-    const qty = Number(item?.qty);
-    if (!product) return { error: "An item in your cart is no longer available." };
-    if (!Number.isInteger(qty) || qty < 1) return { error: `Invalid quantity for ${product.name}.` };
-    if (delivery === "ship" && product.shippable === false) {
-      return { error: `${product.name} is available for local pickup only.` };
-    }
-    const left = await available(env, product);
-    if (qty > left) {
-      return { error: left ? `Only ${left} of ${product.name} left.` : `${product.name} has sold out.` };
-    }
-    lines.push({ product, qty, unitCents: toCents(await priceFor(env, product)), shipping: await shippingFor(env, product) });
+// Calls a WOOD website_* operation with the website key. Returns WOOD's JSON
+// response, which has ok: true or ok: false with a shopper-facing message.
+// Throws a WoodError when WOOD can't be reached, rejects the key, or the call
+// fails; its reason is a short code that is safe to show publicly.
+export class WoodError extends Error {
+  constructor(reason, detail) {
+    super(`WOOD ${reason}: ${detail}`);
+    this.reason = reason;
   }
+}
 
-  const itemCents = lines.reduce((sum, l) => sum + l.unitCents * l.qty, 0);
-  const { freeOver } = catalog.shipping || {};
-  const freeShipping = freeOver != null && itemCents >= toCents(freeOver);
-  const shippingCents = delivery === "ship" && !freeShipping ? shippingTotalCents(lines) : 0;
-  return { lines, itemCents, shippingCents, totalCents: itemCents + shippingCents };
+export async function wood(env, operation, args = {}) {
+  if (!env.WOOD_URL || !env.WOOD_PUBLISHABLE_KEY || !env.WOOD_WEBSITE_KEY) {
+    throw new WoodError("not_configured", "WOOD_URL, WOOD_PUBLISHABLE_KEY, or WOOD_WEBSITE_KEY is missing");
+  }
+  let res;
+  try {
+    res = await fetch(`${env.WOOD_URL.replace(/\/+$/, "")}/rest/v1/rpc/${operation}`, {
+      method: "POST",
+      headers: {
+        apikey: env.WOOD_PUBLISHABLE_KEY,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ p_key: env.WOOD_WEBSITE_KEY, ...args }),
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch (err) {
+    throw new WoodError("unreachable", `${operation}: ${err.message}`);
+  }
+  const text = await res.text();
+  if (!res.ok) {
+    const reason =
+      res.status === 401 && /api key|apikey/i.test(text) ? "publishable_key_rejected"
+      : res.status === 401 || res.status === 403 ? "website_key_rejected"
+      : res.status === 404 ? "operation_missing"
+      : "error";
+    throw new WoodError(reason, `${operation} (${res.status}): ${text.slice(0, 500)}`);
+  }
+  return JSON.parse(text);
+}
+
+// Short failure code for API responses; never includes secrets.
+export const failureReason = (err) => (err instanceof WoodError ? `wood_${err.reason}` : "unexpected");
+
+// Product photos in WOOD are bucket paths, site paths ("/assets/..."), or full URLs.
+export function photoUrl(env, path) {
+  if (/^https:\/\//.test(path) || path.startsWith("/")) return path;
+  return `${env.WOOD_URL.replace(/\/+$/, "")}/storage/v1/object/public/product-photos/${path
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/")}`;
 }
 
 export function paypalBase(env) {
+  if (env.PAYPAL_API_BASE) return env.PAYPAL_API_BASE;
   return env.PAYPAL_ENV === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
 }
 
@@ -123,3 +102,13 @@ export async function paypalFetch(env, path, init = {}) {
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
 }
+
+// The WOOD checkout hold ID is stored as the PayPal order's custom_id.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function holdIdFrom(paypalOrder) {
+  const id = paypalOrder?.purchase_units?.[0]?.custom_id;
+  return UUID.test(id || "") ? id : null;
+}
+
+export const isPayPalOrderId = (id) => /^[A-Z0-9]{5,40}$/.test(id);
