@@ -13,6 +13,7 @@ export async function onRequestGet({ env }) {
       name: l.name,
       description: l.description || "",
       details: l.details || "",
+      note: l.note || "",
       price: Number(l.price),
       images: (l.images || []).map((path) => photoUrl(env, path)),
       shippable: l.shippable,

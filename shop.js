@@ -57,6 +57,7 @@
           <h3>${esc(p.name)}</h3>
           <p>${esc(p.description)}</p>
           ${p.details ? `<p class="shop-details">${esc(p.details)}</p>` : ''}
+          ${p.note ? `<p class="shop-note">${esc(p.note)}</p>` : ''}
           <div class="shop-meta"><span class="stock">${stock}</span>${p.shippable ? '' : '<span class="stock">Local pickup only</span>'}</div>
           <span class="price">${money(p.price)}</span>
           <button class="button add-to-cart" type="button" data-id="${esc(p.id)}"${soldOut || full ? ' disabled' : ''}>${button}</button>
