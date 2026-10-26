@@ -4,7 +4,10 @@
   const cartSection = document.getElementById('cart');
   const cartWrap = document.getElementById('cart-wrap');
   const cartPill = document.getElementById('cart-pill');
-  const state = { catalog: null, cart: loadCart(), delivery: 'ship', paypalReady: false, lastError: '', photo: {} };
+  const state = { catalog: null, cart: loadCart(), delivery: 'ship', paypalReady: false, lastError: '', notice: '', photo: {} };
+  // Contiguous US only: the 48 states and DC (same list as functions/_shared/shop.js).
+  const SHIP_STATES = new Set(('AL AZ AR CA CO CT DE DC FL GA ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY ' +
+    'NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY').split(' '));
 
   function loadCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
@@ -140,7 +143,7 @@
       }).join('')}</ul>
       <fieldset class="delivery">
         <legend>Delivery</legend>
-        <label><input type="radio" name="delivery" value="ship"${state.delivery === 'ship' ? ' checked' : ''}${t.allShippable ? '' : ' disabled'}> Ship to me <small>${t.allShippable ? shipLabel : 'Not available for pickup-only items'}</small></label>
+        <label><input type="radio" name="delivery" value="ship"${state.delivery === 'ship' ? ' checked' : ''}${t.allShippable ? '' : ' disabled'}> Ship to me <small>${t.allShippable ? `${shipLabel} · Contiguous US only` : 'Not available for pickup-only items'}</small></label>
         ${pickup.enabled ? `<label><input type="radio" name="delivery" value="pickup"${state.delivery === 'pickup' ? ' checked' : ''}> Local pickup <small>${esc(pickup.note)}</small></label>` : ''}
       </fieldset>
       <dl class="cart-totals">
@@ -148,13 +151,15 @@
         <div><dt>Shipping</dt><dd>${state.delivery === 'pickup' ? 'Pickup' : t.free ? 'Free' : money(t.ship)}</dd></div>
         <div class="cart-total"><dt>Total</dt><dd>${money(t.total)}</dd></div>
       </dl>
-      <p class="cart-message" role="status" id="cart-message"></p>
+      <p class="cart-message" role="status" id="cart-message">${esc(state.notice)}</p>
       <div id="paypal-buttons"></div>
       ${state.catalog.paypalClientId ? '<p class="form-note">Pay securely with PayPal or a debit/credit card. No PayPal account needed.</p>' : '<p class="form-note">Online checkout is being set up. Please check back soon.</p>'}`;
     mountPayPal();
   }
 
+  // Kept in state so it survives the cart re-rendering after a catalog reload.
   function message(text) {
+    state.notice = text;
     const el = document.getElementById('cart-message');
     if (el) el.textContent = text;
   }
@@ -188,10 +193,17 @@
         if (!res.ok) { state.lastError = data.error; throw new Error(data.error); }
         return data.id;
       },
+      // Tell shoppers in the PayPal window when we don't ship to an address.
+      onShippingAddressChange: (data, actions) => {
+        const address = data.shippingAddress || {};
+        if (address.countryCode !== 'US') return actions.reject(data.errors?.COUNTRY_ERROR);
+        if (!SHIP_STATES.has(String(address.state || '').trim().toUpperCase())) return actions.reject(data.errors?.STATE_ERROR);
+      },
       onApprove: async (data, actions) => {
         const res = await fetch(`/api/orders/${encodeURIComponent(data.orderID)}/capture`, { method: 'POST' });
         const result = await res.json().catch(() => ({}));
         if (result.declined) { message('Your payment was declined. Please try another payment method.'); return actions.restart(); }
+        if (result.shippingArea) { message(result.error); loadCatalog(); return; }
         if (!res.ok) { state.lastError = result.error; throw new Error(result.error); }
         complete(result);
       },
@@ -225,6 +237,7 @@
   }
 
   function setQty(id, qty) {
+    state.notice = '';
     const p = product(id);
     qty = Math.max(0, Math.min(qty, p.available));
     state.cart = qty
