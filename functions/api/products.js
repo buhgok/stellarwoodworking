@@ -27,6 +27,8 @@ export async function onRequestGet({ env }) {
       shipping: { freeOver: catalog.shipping.free_over == null ? null : Number(catalog.shipping.free_over) },
       pickup: catalog.pickup,
       paypalClientId: env.PAYPAL_CLIENT_ID || null,
+      // The sandbox only offers Venmo when told the buyer is in the US.
+      paypalSandbox: env.PAYPAL_ENV !== "live",
       products,
     });
   } catch (err) {

@@ -153,7 +153,7 @@
       </dl>
       <p class="cart-message" role="status" id="cart-message">${esc(state.notice)}</p>
       <div id="paypal-buttons"></div>
-      ${state.catalog.paypalClientId ? '<p class="form-note">Pay securely with PayPal or a debit/credit card. No PayPal account needed.</p>' : '<p class="form-note">Online checkout is being set up. Please check back soon.</p>'}`;
+      ${state.catalog.paypalClientId ? '<p class="form-note">Pay securely with PayPal, Venmo or a debit/credit card. No PayPal account needed.</p>' : '<p class="form-note">Online checkout is being set up. Please check back soon.</p>'}`;
     mountPayPal();
   }
 
@@ -168,7 +168,9 @@
     if (window.paypal) return Promise.resolve();
     return new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(state.catalog.paypalClientId)}&currency=${state.catalog.currency}&intent=capture&components=buttons&disable-funding=paylater`;
+      // Venmo shows for eligible US shoppers; buyer-country is a sandbox-only
+      // setting that lets it appear in testing.
+      s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(state.catalog.paypalClientId)}&currency=${state.catalog.currency}&intent=capture&components=buttons&enable-funding=venmo&disable-funding=paylater${state.catalog.paypalSandbox ? '&buyer-country=US' : ''}`;
       s.onload = resolve;
       s.onerror = reject;
       document.head.appendChild(s);
