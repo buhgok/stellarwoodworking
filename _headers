@@ -1,0 +1,8 @@
+# Cloudflare Pages response headers for the site's pages and files: stop other
+# sites from embedding the shop, and tell browsers not to guess file types.
+# (The /api/* Functions set their own headers.)
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
