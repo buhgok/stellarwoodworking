@@ -1,6 +1,8 @@
-# Daily shop check. Loading the shop's product list keeps WOOD's free Supabase
-# project active (free projects pause after about a week without activity),
-# and the run fails, so GitHub emails you, if the shop can't load.
+# Daily shop check. Loading each shop's product list keeps its WOOD database
+# active (free Supabase projects pause after about a week without activity),
+# and the run fails, so GitHub emails you, if a shop can't load:
+#   live: stellarwoodworking.com, backed by WOOD PROD
+#   dev:  the dev preview site, backed by WOOD DEV (the practice database)
 #
 # Scheduled runs only happen from the default branch (main), and GitHub turns
 # them off after 60 days with no repository activity; it emails before it does.
@@ -15,16 +17,30 @@ permissions: {}
 
 jobs:
   check:
+    name: Check ${{ matrix.site }} shop
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      fail-fast: false # check both shops even if one fails
+      matrix:
+        include:
+          - site: live
+            url: https://stellarwoodworking.com/api/products
+            database: WOOD PROD
+          - site: dev
+            url: https://dev.stellarwoodworking.pages.dev/api/products
+            database: WOOD DEV
     steps:
-      - name: Load the shop's products
+      - name: Load the ${{ matrix.site }} shop's products
+        env:
+          URL: ${{ matrix.url }}
+          DATABASE: ${{ matrix.database }}
+          SITE: ${{ matrix.site }}
         run: |
-          status=$(curl -sS -o products.json -w '%{http_code}' --retry 3 --retry-delay 20 --max-time 30 \
-            https://stellarwoodworking.com/api/products)
+          status=$(curl -sS -o products.json -w '%{http_code}' --retry 3 --retry-delay 20 --max-time 30 "$URL")
           echo "HTTP $status"
           if [ "$status" != "200" ]; then
-            echo "::error::The shop couldn't load its products (HTTP $status). If Supabase paused WOOD PROD, open the project in Supabase and choose Restore."
+            echo "::error::The $SITE shop couldn't load its products (HTTP $status). If Supabase paused $DATABASE, open the project in Supabase and choose Restore."
             head -c 300 products.json; echo
             exit 1
           fi
