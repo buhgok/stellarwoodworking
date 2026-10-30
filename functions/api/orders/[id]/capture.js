@@ -1,8 +1,9 @@
 // POST /api/orders/:id/capture: confirms the WOOD hold, captures payment with
 // PayPal, then records the paid order in WOOD.
 import { SHIPPING_AREA_MESSAGE, holdIdFrom, isPayPalOrderId, json, paypalFetch, shipsTo, wood } from "../../../_shared/shop.js";
+import { notify, orderAlert } from "../../../_shared/notify.js";
 
-export async function onRequestPost({ params, env }) {
+export async function onRequestPost({ params, env, waitUntil }) {
   const id = String(params.id || "");
   if (!isPayPalOrderId(id)) return json({ error: "Invalid order." }, 400);
 
@@ -66,6 +67,17 @@ export async function onRequestPost({ params, env }) {
           }
         : null,
     });
+
+    // Tell the owners' phones, without holding up the shopper's confirmation.
+    const items = (order.data.purchase_units?.[0]?.items || []).reduce((n, item) => n + (Number(item.quantity) || 0), 0);
+    waitUntil(notify(env, orderAlert({
+      record,
+      amount: payment.amount?.value,
+      currency: payment.amount?.currency_code,
+      delivery: address ? "ship" : "pickup",
+      items,
+      captureId: payment.id,
+    })));
 
     return json({
       id,

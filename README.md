@@ -32,6 +32,9 @@ Paid orders appear in WOOD's Orders and Fulfillment screens.
 | `PAYPAL_CLIENT_ID` | PayPal REST app client ID |
 | `PAYPAL_CLIENT_SECRET` | PayPal REST app secret (secret) |
 | `PAYPAL_ENV` | `live` for production only; anything else uses the PayPal sandbox |
+| `NTFY_TOPIC` | Optional (secret): private ntfy topic for phone alerts on new and problem orders. Leave unset on Preview |
+| `NTFY_CLICK_URL` | Optional: opened when an alert is tapped, e.g. `https://wood.stellarwoodworking.com` |
+| `NTFY_SERVER`, `NTFY_TOKEN` | Optional: another ntfy server, and an access token for a protected topic |
 
 Never put WOOD's Supabase secret / `service_role` key here.
 
