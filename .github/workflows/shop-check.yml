@@ -3,6 +3,8 @@
 # and the run fails, so GitHub emails you, if a shop can't load:
 #   live: stellarwoodworking.com, backed by WOOD PROD
 #   dev:  the dev preview site, backed by WOOD DEV (the practice database)
+# It also checks that PayPal's payment notices can reach each WOOD project's
+# paypal-invoices function (see the "webhook" job below).
 #
 # Scheduled runs only happen from the default branch (main), and GitHub turns
 # them off after 60 days with no repository activity; it emails before it does.
@@ -45,3 +47,37 @@ jobs:
             exit 1
           fi
           echo "Products listed: $(grep -o '"id":' products.json | wc -l)"
+
+  webhook:
+    # PayPal's invoice notices carry no WOOD login, so the paypal-invoices
+    # function must have Supabase's "Verify JWT" switch OFF (WOOD checks
+    # PayPal's signature itself). Redeploying the function from the Supabase
+    # dashboard can turn the switch back on, which silently blocks every notice.
+    # This sends an empty, unsigned notice: WOOD refuses it ("Not verified",
+    # HTTP 400) and changes nothing. HTTP 401 means the switch is on.
+    name: Check ${{ matrix.database }} PayPal notices
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - database: WOOD PROD
+            url: https://cxovabbohqhmcnwfeesf.supabase.co/functions/v1/paypal-invoices/webhook
+          - database: WOOD DEV
+            url: https://cvjqkvowdiqdaarsdkqe.supabase.co/functions/v1/paypal-invoices/webhook
+    steps:
+      - name: Send an unsigned test notice to ${{ matrix.database }}
+        env:
+          URL: ${{ matrix.url }}
+          DATABASE: ${{ matrix.database }}
+        run: |
+          status=$(curl -sS -o reply.json -w '%{http_code}' --retry 3 --retry-delay 20 --max-time 30 \
+            -X POST -H 'Content-Type: application/json' --data '{}' "$URL")
+          echo "HTTP $status"; head -c 300 reply.json; echo
+          case "$status" in
+            400) echo "PayPal notices reach $DATABASE (the unsigned test was refused, as it should be)." ;;
+            401) echo "::error::$DATABASE is blocking PayPal's notices: in Supabase, Edge Functions > paypal-invoices > Details, turn OFF 'Verify JWT' and save."; exit 1 ;;
+            503) echo "::error::$DATABASE's paypal-invoices function has no PAYPAL_WEBHOOK_ID secret, so it can't check PayPal's notices."; exit 1 ;;
+            *)   echo "::error::Unexpected reply from $DATABASE's paypal-invoices function (HTTP $status). If Supabase paused the project, open it and choose Restore."; exit 1 ;;
+          esac
