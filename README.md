@@ -20,7 +20,17 @@ Checkout runs through Cloudflare Pages Functions in `functions/api/` and PayPal:
 
 Paid orders appear in WOOD's Orders and Fulfillment screens.
 
+## Layout
+
+Everything visitors can load lives in `public/` (pages, styles, images, `_headers`, `_redirects`,
+`_routes.json`, `robots.txt`, `sitemap.xml`). The server code stays in `functions/` at the top. Only `public/`
+is published, so this README, the workflows and the Functions source can't be downloaded from the site.
+
+Local preview: `npx wrangler pages dev public` (from the repository's top folder, so `functions/` is found).
+
 ### Cloudflare Pages settings
+
+**Build:** framework preset None, no build command, **build output directory `public`**.
 
 **Variables and Secrets:**
 
